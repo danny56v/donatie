@@ -1,10 +1,21 @@
 import express from "express";
-// const express = require('express')
+
+import dotenv from "dotenv"; 
+import mongoose from "mongoose";
+
+dotenv.config();
 const app = express();
 
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  res.send("Hello World"); 
 });
+ 
+main().catch((err) => console.log(err));
+  
+async function main() { 
+  await mongoose.connect(process.env.MONGO_URL);
+  console.log('DATABASE CONNECTED')
+}
 
 app.listen(3000, () => {
   console.log("App is listening on port 3000");
