@@ -54,4 +54,11 @@ export const signin: RequestHandler<{}, {}, SignInRequestBody> = async (req, res
   } catch (error) {
     return next(error);
   }
-}
+};
+
+// Funcția pentru signout
+export const signout: RequestHandler = (req, res) => {
+  // Șterge cookie-ul de autentificare
+  res.cookie("access_token", "", { httpOnly: true, expires: new Date(0) });
+  res.status(200).json({ message: "Sign out successful" });
+};
