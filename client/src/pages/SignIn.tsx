@@ -32,7 +32,7 @@ export default function SignIn() {
     e.preventDefault();
   };
   const handleMouseUpPassword = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); 
+    e.preventDefault();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,14 +49,20 @@ export default function SignIn() {
   //   console.log(email);
   // };
 
-  const handleSubmit = async (e:React.FormEvent) => {
-    e.preventDefault()
-try {
-    const response = await axios.post<ResponseApi>('api/auth/signin', formData)
-    
-} catch (error) {
-  console.error("Error creating user:", error);
-}
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("api/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      console.log(res)
+    } catch (error) {
+      console.error("Error creating user:", error);
+    }
   };
   return (
     <>
@@ -116,7 +122,7 @@ try {
             </div>
             <Button type="submit">Sign In</Button>
           </form>
-          <GoogleSignInButton/>
+          {/* <GoogleSignInButton /> */}
         </Container>
       </Box>
     </>
