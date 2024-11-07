@@ -19,7 +19,15 @@ interface SignInRequestBody {
 
 export const signup: RequestHandler<{}, {}, SignUpRequestBody> = async (req, res, next) => {
   const { email, username, password } = req.body;
+  if (!email || !password || !username) {
+    return next(errorHandler(400, "Toate câmpurile sunt obligatorii."));
+  }
   try {
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      res.status(400).json({ message: "Email sau username deja utilizat." });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ email, username, password: hashedPassword });
     await newUser.save();
@@ -35,14 +43,24 @@ export const signup: RequestHandler<{}, {}, SignUpRequestBody> = async (req, res
 
 export const signin: RequestHandler<{}, {}, SignInRequestBody> = async (req, res, next) => {
   const { email, password } = req.body;
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!email || !password) {
+    return next(errorHandler(400, "Email-ul și parola sunt obligatorii."));
+  }
+
+  if (!emailRegex.test(email)) {
+    return next(errorHandler(400, "Email invalid. Te rugăm să introduci un email corect."));
+  }
   try {
     const validUser = (await User.findOne({ email })) as IUser;
-    if (!validUser) return next(errorHandler(401, "User not found"));
+    if (!validUser) return next(errorHandler(401, "Utilizator negăsit"));
     if (validUser.googleId) {
       return next(errorHandler(401, "Te rog să te conectezi folosind Google."));
     }
     if (!validUser.password) {
-      return next(errorHandler(404, "Parola nu este definită."));
+      return next(errorHandler(404, "Email sau Parolă greșită"));
     }
 
     const validPassword = await bcrypt.compare(password, validUser.password);
