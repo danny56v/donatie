@@ -10,11 +10,11 @@ import {
   OutlinedInput,
   TextField,
 } from "@mui/material";
-import axios from "axios";
 
 import { useState } from "react";
-import { ResponseApi } from "../utils/Response";
-import GoogleSignInButton from "../components/GoogleSignInButton";
+import { useSelector, useDispatch } from "react-redux";
+import { signInFailure, signInSuccess } from "../redux/slices/userSlice";
+import { useNavigate } from "react-router-dom";
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,8 +23,8 @@ export default function SignIn() {
     email: "",
     password: "",
   });
-  // const [email, setEmail] = useState("");
-  // const [username, setUsername] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -40,14 +40,6 @@ export default function SignIn() {
 
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
-  // const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setUsername(e.target.value);
-  //   console.log(username);
-  // };
-  // const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setEmail(e.target.value);
-  //   console.log(email);
-  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,9 +51,18 @@ export default function SignIn() {
         },
         body: JSON.stringify(formData),
       });
-      console.log(res)
+
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(signInFailure(data.message));
+        return;
+      }
+      dispatch(signInSuccess(data));
+      console.log(data);
+      navigate("/");
     } catch (error) {
-      console.error("Error creating user:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+      dispatch(signInFailure(new Error(errorMessage)));
     }
   };
   return (

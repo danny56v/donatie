@@ -4,15 +4,15 @@ import { IUser } from "../../interfaces/IUser";
 interface UserState {
   currentUser: IUser | null;
   isAuthenticated: boolean;
-  laoding: boolean;
-  error: boolean;
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: UserState = {
   currentUser: null,
   isAuthenticated: false,
-  laoding: false,
-  error: false,
+  loading: false,
+  error: null,
 };
 
 const userSlice = createSlice({
@@ -21,13 +21,18 @@ const userSlice = createSlice({
   reducers: {
     signInSuccess: (state, action: PayloadAction<IUser>) => {
       state.currentUser = action.payload;
-      state.laoding = false;
-      state.error = false;
+      state.isAuthenticated = true
+      state.loading = false;
+      state.error = null;
     },
+    signInFailure: (state, action: PayloadAction<Error>)=>{
+        state.loading = false;
+        state.error = action.payload.message
+    }
   },
 });
 
 
-export const { signInSuccess } = userSlice.actions;
+export const { signInSuccess, signInFailure } = userSlice.actions;
 
 export default userSlice.reducer;

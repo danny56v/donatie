@@ -72,7 +72,9 @@ export default function SignUp() {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
+      const data = await response.json()
+
+      if (!response.ok || data.success ===false) {
         const errorData = await response.json();
         // Verificăm răspunsul serverului pentru erori specifice
         if (errorData.message.includes("email")) {
