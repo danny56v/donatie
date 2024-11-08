@@ -21,7 +21,7 @@ import { RootState } from "../redux/store";
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -43,7 +43,6 @@ export default function SignIn() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
     setFormData((prevData) => ({ ...prevData, [name]: value }));
     // setErrorMessage(null);
   };

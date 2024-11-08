@@ -15,17 +15,24 @@ interface SignUpRequestBody {
 interface SignInRequestBody {
   email: string;
   password: string;
-}
+} 
 
 export const signup: RequestHandler<{}, {}, SignUpRequestBody> = async (req, res, next) => {
   const { email, username, password } = req.body;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   if (!email || !password || !username) {
     return next(errorHandler(400, "Toate câmpurile sunt obligatorii."));
   }
+  if (!emailRegex.test(email)) {
+    return next(errorHandler(400, "Email invalid. Te rugăm să introduci un email corect."));
+  }
+
   try {
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
-      res.status(400).json({ message: "Email sau username deja utilizat." });
+      return next(errorHandler(400, 'Email sau username existent!'))
+      // res.status(400).json({ message: "Email sau username deja utilizat." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -37,7 +44,7 @@ export const signup: RequestHandler<{}, {}, SignUpRequestBody> = async (req, res
   } catch (error) {
     // const errorMessage = error instanceof Error ? error.message : "An error occured";
     // res.status(500).json({ message: errorMessage });
-    return next(error);
+    return next(errorHandler(500, 'A apărut o eroare la crearea utilizatorului.'));
   }
 };
 
@@ -76,7 +83,11 @@ export const signin: RequestHandler<{}, {}, SignInRequestBody> = async (req, res
 
 // Funcția pentru signout
 export const signout: RequestHandler = (req, res) => {
-  // Șterge cookie-ul de autentificare
-  res.cookie("access_token", "", { httpOnly: true, expires: new Date(0) });
+  res.cookie("access_token", "", { 
+    httpOnly: true, 
+    secure: true,         // Asigură-te că aplicația rulează pe HTTPS
+    sameSite: "strict",   // Limitează accesul din contexte de la terți
+    expires: new Date(0)  // Expiră imediat cookie-ul pentru sign-out
+  });
   res.status(200).json({ message: "Sign out successful" });
 };

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IUser } from "../../interfaces/IUser"
+import { IUser } from "../../interfaces/IUser";
 
 interface UserState {
   currentUser: IUser | null;
@@ -32,9 +32,21 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    signUpStart: (state) => {
+      state.loading = true;
+    },
+    signUpSuccess: (state) => {
+      state.loading = false;
+      state.error = null;
+    },
+    signUpFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
-export const { signInStart, signInSuccess, signInFailure } = userSlice.actions;
+export const { signInStart, signInSuccess, signInFailure, signUpStart, signUpSuccess, signUpFailure } =
+  userSlice.actions;
 
 export default userSlice.reducer;
