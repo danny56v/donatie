@@ -3,6 +3,7 @@ import { json } from "body-parser";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRouter from "./routes/auth.route";
+import productRouter from "./routes/product.route"
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 
@@ -29,6 +30,7 @@ async function main() {
 main();
 
 app.use("/api/auth", authRouter);
+app.use("/api/products", productRouter)
 
 interface ErrorWithStatusCode extends Error {
   statusCode?: number;
