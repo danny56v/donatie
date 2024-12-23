@@ -1,11 +1,12 @@
-import { model, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 
 export interface IUser {
-  _id: string;
+  _id: mongoose.Types.ObjectId;
   googleId?: string;
   username?: string;
   email: string;
   password?: string;
+  productsId: mongoose.Types.ObjectId[];
 }
 
 const userSchema = new Schema<IUser>(
@@ -14,6 +15,7 @@ const userSchema = new Schema<IUser>(
     username: { type: String, required: true, unique: true, index: true },
     email: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: false, unique: false },
+    productsId: [{ type: Schema.Types.ObjectId, ref: "Product" }],
   },
   { timestamps: true }
 );

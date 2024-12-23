@@ -9,3 +9,12 @@ declare namespace NodeJS {
     }
   }
   
+  import { IUser } from '../models/user'; // Actualizează calea relativă corespunzător
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: IUser;
+    }
+  }
+}
