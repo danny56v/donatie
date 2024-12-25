@@ -150,12 +150,12 @@ export default function Example() {
               </button>
             </div>
           </form>
-          {/* <p className="mt-10 text-center text-sm/6 text-gray-500">
-            {" "}
-            <a href="/signup" className="font-semibold text-gray-900 hover:text-gray-600">
-              Sign Up
+          <p className="mt-10 text-center text-sm/6 text-gray-500">
+            {"Have an account?   "}
+            <a href="/signin" className="font-semibold text-gray-900 hover:text-gray-600">
+              Sign In
             </a>
-          </p> */}
+          </p>
         </div>
       </div>
     </>
