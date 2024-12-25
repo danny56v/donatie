@@ -9,6 +9,8 @@ import SignUp from "./pages/SignUp.tsx";
 import { Provider } from "react-redux";
 import { store } from "./redux/store.ts";
 import Layout from "./components/Layout.tsx";
+import CreateProduct from "./pages/CreateProduct.tsx";
+import { ThemeProvider } from "@material-tailwind/react";
 
 const router = createBrowserRouter([
 
@@ -20,6 +22,7 @@ const router = createBrowserRouter([
       { path: "/", element: <App /> },        
       { path: "signin", element: <SignIn /> },
       { path: "signup", element: <SignUp /> },
+      { path: "product", element: <CreateProduct/>}
     ]
   }
 
@@ -40,8 +43,10 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
+    <ThemeProvider>
     <StrictMode>
       <RouterProvider router={router} />
     </StrictMode>
+    </ThemeProvider>
   </Provider>
 );
