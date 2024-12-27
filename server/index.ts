@@ -3,7 +3,8 @@ import { json } from "body-parser";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRouter from "./routes/auth.route";
-import productRouter from "./routes/product.route"
+import productRouter from "./routes/product.route";
+import categoryRouter from "./routes/category.route";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 
@@ -11,10 +12,8 @@ dotenv.config();
 
 const app = express();
 
-app.use(helmet())
+app.use(helmet());
 app.use(json());
-
-
 
 app.use(cookieParser());
 
@@ -30,7 +29,8 @@ async function main() {
 main();
 
 app.use("/api/auth", authRouter);
-app.use("/api/products", productRouter)
+app.use("/api/products", productRouter);
+app.use("/api/category", categoryRouter);
 
 interface ErrorWithStatusCode extends Error {
   statusCode?: number;

@@ -6,6 +6,7 @@ export interface IUser {
   username?: string;
   email: string;
   password?: string;
+  isAdmin: boolean;
   productsId: mongoose.Types.ObjectId[];
 }
 
@@ -15,6 +16,7 @@ const userSchema = new Schema<IUser>(
     username: { type: String, required: true, unique: true, index: true },
     email: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: false, unique: false },
+    isAdmin: { type: Boolean, required: true, default: false },
     productsId: [{ type: Schema.Types.ObjectId, ref: "Product" }],
   },
   { timestamps: true }
