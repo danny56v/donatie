@@ -5,7 +5,8 @@ interface IProduct {
   description: string;
   imageUrls: string[];
   used: boolean;
-  category: string;
+  category: mongoose.Types.ObjectId;
+  subcategory: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
 }
 
@@ -15,7 +16,8 @@ const productSchema = new Schema<IProduct>(
     description: { type: String, required: true },
     imageUrls: [{ type: String, required: false }],
     used: { type: Boolean, required: true },
-    category: { type: String, required: true },
+    category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+    subcategory: { type: Schema.Types.ObjectId, ref: "Subcategory", required: true },
     userId: { type: Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }

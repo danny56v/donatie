@@ -8,8 +8,8 @@ export const createProduct: RequestHandler = async (req, res, next) => {
       res.status(401).send("Unauthorized: No user ID found.");
       return;
     }
-    const { name, description, imageUrls, used, category } = req.body;
-    if (!name || !description || !used || !category) {
+    const { name, description, imageUrls, used, category, subcategory } = req.body;
+    if (!name || !description || !used || !category || !subcategory) {
       next(errorHandler(400, "Introduceti datele in toate campurile"));
     }
     // console.log(req.user.id);
@@ -19,6 +19,7 @@ export const createProduct: RequestHandler = async (req, res, next) => {
       imageUrls,
       used,
       category,
+      subcategory,
       userId: req.user.id,
     });
     const savedProduct = await newProduct.save();
