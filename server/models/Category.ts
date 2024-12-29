@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
+
 interface ICategory {
   name: string;
   subcategories: mongoose.Types.ObjectId[];
