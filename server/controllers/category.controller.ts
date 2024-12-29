@@ -12,7 +12,7 @@ export const getCategories: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const addCategory: RequestHandler = async (req, res, next) => {
+export const createCategory: RequestHandler = async (req, res, next) => {
   try {
     if (!req.user || !req.user.id || !req.user.isAdmin) {
       return next(errorHandler(401, "Acces restricționat - necesită drepturi de administrator!"));

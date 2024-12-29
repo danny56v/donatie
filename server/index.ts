@@ -30,7 +30,7 @@ main();
 
 app.use("/api/auth", authRouter);
 app.use("/api/products", productRouter);
-app.use("/api/category", categoryRouter);
+app.use("/api/categories", categoryRouter);
 
 interface ErrorWithStatusCode extends Error {
   statusCode?: number;
