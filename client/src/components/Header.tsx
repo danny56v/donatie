@@ -9,9 +9,13 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
-import { signOutFailure, signOutStart, signOutSuccess } from "../redux/slices/userSlice";
+import { signInFailure, signInStart, signInSuccess, signOutFailure, signOutStart, signOutSuccess } from "../redux/slices/userSlice";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../redux/store";
+import axios from "axios";
+import { useEffect } from "react";
+
+
 
 const navigation = [
   { name: "Dashboard", href: "#", current: true },
@@ -30,23 +34,46 @@ export default function Header() {
 
   const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated);
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get("/api/auth/checkAuth");
+        dispatch(signInStart())
+        if (res.data.isAuthenticated) {
+          dispatch(signInSuccess(res.data.user));
+        }
+        dispatch(signInFailure());
+      } catch (error) {
+        const errorMessage =
+        axios.isAxiosError(error) && error.response
+          ? error.response.data.message || "A apărut o eroare la autentificare."
+          : "A apărut o eroare neprevăzută.";
+      dispatch(signInFailure(errorMessage));
+      }
+    };
+
+    checkAuth();
+  }, [dispatch]);
+
   const handleSignOut = async () => {
     try {
       dispatch(signOutStart());
-      const res = await fetch("api/auth/signout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await res.json();
-      if (!res.ok || data.success === false) {
-        dispatch(signOutFailure(data.message));
-      }
+      const res = await axios.post("/api/auth/signout");
+      // const res = await fetch("api/auth/signout", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
+      // const data = await res.json();
+
       dispatch(signOutSuccess());
       navigate("/");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+      const errorMessage =
+        axios.isAxiosError(error) && error.response
+          ? error.response.data.message || "A apărut o eroare la autentificare."
+          : "A apărut o eroare neprevăzută.";
       dispatch(signOutFailure(errorMessage));
     }
   };
@@ -58,7 +85,7 @@ export default function Header() {
   };
   return (
     <Disclosure as="nav" className="bg-white">
-      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-9xl px-2 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             {/* Mobile menu button*/}
@@ -198,231 +225,3 @@ export default function Header() {
     </Disclosure>
   );
 }
-
-// import * as React from "react";
-// import AppBar from "@mui/material/AppBar";
-// import Box from "@mui/material/Box";
-// import Toolbar from "@mui/material/Toolbar";
-// import IconButton from "@mui/material/IconButton";
-// import Typography from "@mui/material/Typography";
-// import Menu from "@mui/material/Menu";
-// import MenuIcon from "@mui/icons-material/Menu";
-// import Container from "@mui/material/Container";
-// import Avatar from "@mui/material/Avatar";
-// import Button from "@mui/material/Button";
-// import Tooltip from "@mui/material/Tooltip";
-// import MenuItem from "@mui/material/MenuItem";
-// import AdbIcon from "@mui/icons-material/Adb";
-// import AddIcon from '@mui/icons-material/Add';
-// import { useDispatch, useSelector } from "react-redux";
-// import { RootState } from "../redux/store";
-// import { Navigate, useLocation, useNavigate } from "react-router-dom";
-// import { signOutFailure, signOutStart, signOutSuccess } from "../redux/slices/userSlice";
-
-// const pages = ["Products", "Pricing", "Blog"];
-// const settings: MenuActionKey[] = ["Profile", "Account", "Dashboard", "Logout"];
-
-// type MenuActionKey = "Profile" | "Account" | "Dashboard" | "Logout";
-
-// function ResponsiveAppBar() {
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-//   const location = useLocation();
-//   const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated);
-//   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-//   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-
-//   const isLoginPage = location.pathname === "/signin";
-
-//   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-//     setAnchorElNav(event.currentTarget);
-//   };
-//   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-//     setAnchorElUser(event.currentTarget);
-//   };
-
-//   const handleCloseNavMenu = () => {
-//     setAnchorElNav(null);
-//   };
-
-//   const handleCloseUserMenu = () => {
-//     setAnchorElUser(null);
-//   };
-
-//   const handleLogIn = () => {
-//     navigate("/signin");
-//   };
-
-//   const handleSignUp = () => {
-//     navigate("/signup");
-//   };
-
-//   const handleAddProduct = () =>{
-//     navigate('/product')
-//   }
-
-//   const handleSignOut = async () => {
-//     try {
-//       dispatch(signOutStart());
-//       const res = await fetch("api/auth/signout", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//       });
-//       const data = await res.json();
-//       if (!res.ok || data.success === false) {
-//         dispatch(signOutFailure(data.message));
-//         return;
-//       }
-//       dispatch(signOutSuccess());
-//       navigate("/signin");
-//     } catch (error) {
-//       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-//       dispatch(signOutFailure(errorMessage));
-//     }
-//   };
-
-//   const menuActions: Record<MenuActionKey, () => void> = {
-//     Profile: handleCloseUserMenu,
-//     Account: handleCloseUserMenu,
-//     Dashboard: handleCloseUserMenu,
-//     Logout: handleSignOut,
-//   };
-
-//   return (
-//     <AppBar position="static">
-//       <Container maxWidth="xl">
-//         <Toolbar disableGutters>
-//           <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
-//           <Typography
-//             variant="h6"
-//             noWrap
-//             component="a"
-//             href="#app-bar-with-responsive-menu"
-//             sx={{
-//               mr: 2,
-//               display: { xs: "none", md: "flex" },
-//               fontFamily: "monospace",
-//               fontWeight: 700,
-//               letterSpacing: ".3rem",
-//               color: "inherit",
-//               textDecoration: "none",
-//             }}
-//           >
-//             LOGO
-//           </Typography>
-//           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-//             <IconButton
-//               size="large"
-//               aria-label="account of current user"
-//               aria-controls="menu-appbar"
-//               aria-haspopup="true"
-//               onClick={handleOpenNavMenu}
-//               color="inherit"
-//             >
-//               <MenuIcon />
-//             </IconButton>
-//             <Menu
-//               id="menu-appbar"
-//               anchorEl={anchorElNav}
-//               anchorOrigin={{
-//                 vertical: "bottom",
-//                 horizontal: "left",
-//               }}
-//               keepMounted
-//               transformOrigin={{
-//                 vertical: "top",
-//                 horizontal: "left",
-//               }}
-//               open={Boolean(anchorElNav)}
-//               onClose={handleCloseNavMenu}
-//               sx={{ display: { xs: "block", md: "none" } }}
-//             >
-//               {pages.map((page) => (
-//                 <MenuItem key={page} onClick={handleCloseNavMenu}>
-//                   <Typography sx={{ textAlign: "center" }}>{page}</Typography>
-//                 </MenuItem>
-//               ))}
-//             </Menu>
-//           </Box>
-//           <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-//           <Typography
-//             variant="h5"
-//             noWrap
-//             component="a"
-//             href="#app-bar-with-responsive-menu"
-//             sx={{
-//               mr: 2,
-//               display: { xs: "flex", md: "none" },
-//               flexGrow: 1,
-//               fontFamily: "monospace",
-//               fontWeight: 700,
-//               letterSpacing: ".3rem",
-//               color: "inherit",
-//               textDecoration: "none",
-//             }}
-//           >
-//             LOGO
-//           </Typography>
-//           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-//             {pages.map((page) => (
-//               <Button key={page} onClick={handleCloseNavMenu} sx={{ my: 2, color: "white", display: "block" }}>
-//                 {page}
-//               </Button>
-//             ))}
-//           </Box>
-//           {isAuthenticated ? (
-//             <>
-//              <IconButton aria-label="add product" color="inherit" sx={{ mr: 3 }} onClick={handleAddProduct}>
-//              <AddIcon />
-//            </IconButton>
-//             <Box sx={{ flexGrow: 0 }}>
-//               <Tooltip title="Open settings">
-//                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-//                   <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-//                 </IconButton>
-//               </Tooltip>
-//               <Menu
-//                 sx={{ mt: "45px" }}
-//                 id="menu-appbar"
-//                 anchorEl={anchorElUser}
-//                 anchorOrigin={{
-//                   vertical: "top",
-//                   horizontal: "right",
-//                 }}
-//                 keepMounted
-//                 transformOrigin={{
-//                   vertical: "top",
-//                   horizontal: "right",
-//                 }}
-//                 open={Boolean(anchorElUser)}
-//                 onClose={handleCloseUserMenu}
-//               >
-//                 {settings.map((setting) => (
-//                   <MenuItem key={setting} onClick={menuActions[setting]}>
-//                     <Typography sx={{ textAlign: "center" }}>{setting}</Typography>
-//                   </MenuItem>
-//                 ))}
-//               </Menu>
-//             </Box>
-//             </>
-//           ) : (
-//             <>
-//               {isLoginPage ? (
-//                 <Button color="inherit" onClick={handleSignUp}>
-//                   Sign Up
-//                 </Button>
-//               ) : (
-//                 <Button color="inherit" onClick={handleLogIn}>
-//                   Log In
-//                 </Button>
-//               )}
-//             </>
-//           )}
-//         </Toolbar>
-//       </Container>
-//     </AppBar>
-//   );
-// }
-// export default ResponsiveAppBar;
