@@ -1,7 +1,7 @@
 import express, { Router } from "express";
-import { verifyToken } from "../utils/verifyUser";
+import { verifyToken } from "../middleware/verifyUser";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "../controllers/category.controller";
-import { isAdmin } from "../utils/isAdmin";
+import { isAdmin } from "../middleware/isAdmin";
 import {
   createSubcategory,
   deleteSubcategory,

@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { errorHandler } from "./error";
+import { errorHandler } from "../utils/error";
 
 export const isAdmin: RequestHandler = (req, res, next) => {
   if (!req.user || !req.user.isAdmin) {

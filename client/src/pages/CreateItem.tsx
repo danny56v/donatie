@@ -27,6 +27,8 @@ export default function CreateItem() {
   const [selectedCategory, setSelectedCategory] = useState(placeholderCategory);
   const [selectedSubcategory, setSelectedSubcategory] = useState(placeholderSubcategory);
 
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -42,6 +44,16 @@ export default function CreateItem() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 5) {
+      alert("Maxim 5 fisiere");
+      setSelectedFiles(files.slice(0, 5));
+    } else {
+      setSelectedFiles(files);
+    }
   };
 
   useEffect(() => {
@@ -114,10 +126,14 @@ export default function CreateItem() {
       submissionData.append("subcategory", formData.subcategory || "");
       submissionData.append("condition", formData.condition || "");
 
+      selectedFiles.forEach((file, index) => {
+        submissionData.append(`images`, file); // Cheia poate fi "images" pentru toate
+      });
+
       // console.log(formData);
       // console.log(submissionData.get);
 
-       await axios.post("/api/products", submissionData);
+      await axios.post("/api/products", submissionData);
       // const res = await fetch("/api/products", {
       //   method: "POST",
       //   body: submissionData,
@@ -182,7 +198,7 @@ export default function CreateItem() {
                     </div>
                     <p className="mt-3 text-sm/6 text-gray-600">Descrie produsul tău.</p>
                   </div>
-                  {/* <div className="col-span-full">
+                  <div className="col-span-full">
                     <label htmlFor="cover-photo" className="block text-sm/6 font-medium text-gray-900">
                       Cover photo
                     </label>
@@ -195,14 +211,21 @@ export default function CreateItem() {
                             className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
                           >
                             <span>Upload a file</span>
-                            <input id="file-upload" name="file-upload" type="file" className="sr-only" />
+                            <input
+                              id="file-upload"
+                              name="file-upload"
+                              type="file"
+                              onChange={(e) => handleFileChange(e)}
+                              multiple
+                              className="sr-only"
+                            />
                           </label>
                           <p className="pl-1">or drag and drop</p>
                         </div>
                         <p className="text-xs/5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
                       </div>
                     </div>
-                  </div> */}
+                  </div>
                 </div>
               </div>
             </div>
