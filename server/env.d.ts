@@ -14,6 +14,7 @@ declare namespace NodeJS {
 declare global {
   namespace Express {
     interface Request {
+      isAuthenticated?: boolean;
       user?: IUser;
     }
   }

@@ -8,6 +8,8 @@ import categoryRouter from "./routes/category.route";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 
+
+
 dotenv.config();
 
 const app = express();
@@ -51,7 +53,6 @@ const errorHandler: ErrorRequestHandler = (
   });
 };
 
-// Attach the error handler middleware after routes
 app.use(errorHandler);
 
 app.listen(3000, () => {
