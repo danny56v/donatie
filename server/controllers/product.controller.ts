@@ -5,7 +5,7 @@ import { ObjectCannedACL, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3 } from "../utils/s3Config";
 
 export const createProduct: RequestHandler = async (req, res, next) => {
-  console.log(req.files);
+  // console.log(req.files);
   try {
     const files = req.files as Express.Multer.File[];
 
@@ -28,7 +28,7 @@ export const createProduct: RequestHandler = async (req, res, next) => {
         Key: `${Date.now()}-${file.originalname}`,
         Body: file.buffer,
         ContentType: file.mimetype,
-        ACL: "public-read" as ObjectCannedACL,
+        // ACL: "public-read" as ObjectCannedACL,
       };
 
       const command = new PutObjectCommand(params);
@@ -50,7 +50,7 @@ export const createProduct: RequestHandler = async (req, res, next) => {
     const savedProduct = await newProduct.save();
     res.status(201).json(savedProduct);
   } catch (error) {
-    console.log(error)
+    // console.log(error)
     return next(errorHandler(400, "A apărut o eroare la postarea produsului."));
   }
 };

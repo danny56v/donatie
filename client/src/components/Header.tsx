@@ -7,15 +7,20 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, BellIcon, PlusCircleIcon, PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
-import { signInFailure, signInStart, signInSuccess, signOutFailure, signOutStart, signOutSuccess } from "../redux/slices/userSlice";
-import { useNavigate } from "react-router-dom";
+import {
+  signInFailure,
+  signInStart,
+  signInSuccess,
+  signOutFailure,
+  signOutStart,
+  signOutSuccess,
+} from "../redux/slices/userSlice";
+import { useLocation, useNavigate } from "react-router-dom";
 import { RootState } from "../redux/store";
 import axios from "axios";
 import { useEffect } from "react";
-
-
 
 const navigation = [
   { name: "Dashboard", href: "#", current: true },
@@ -31,24 +36,24 @@ function classNames(...classes) {
 export default function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const location = useLocation();
   const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const res = await axios.get("/api/auth/checkAuth");
-        dispatch(signInStart())
+        dispatch(signInStart());
         if (res.data.isAuthenticated) {
           dispatch(signInSuccess(res.data.user));
         }
         dispatch(signInFailure());
       } catch (error) {
         const errorMessage =
-        axios.isAxiosError(error) && error.response
-          ? error.response.data.message || "A apărut o eroare la autentificare."
-          : "A apărut o eroare neprevăzută.";
-      dispatch(signInFailure(errorMessage));
+          axios.isAxiosError(error) && error.response
+            ? error.response.data.message || "A apărut o eroare la autentificare."
+            : "A apărut o eroare neprevăzută.";
+        dispatch(signInFailure(errorMessage));
       }
     };
 
@@ -125,14 +130,17 @@ export default function Header() {
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             {isAuthenticated ? (
               <>
+              {location.pathname !== "/item" && ( 
                 <button
                   type="button"
                   className="relative rounded-full bg-white p-1 text-gray-900 hover:text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                  onClick={() => navigate("/item")}
                 >
                   <span className="absolute -inset-1.5" />
-                  <span className="sr-only">View notifications</span>
-                  <BellIcon aria-hidden="true" className="size-6" />
+                  <span className="sr-only">Add Item</span>
+                  <PlusIcon aria-hidden="true" className="size-6" />
                 </button>
+                )}
 
                 <Menu as="div" className="relative ml-3">
                   <div>
