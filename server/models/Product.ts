@@ -18,7 +18,7 @@ const productSchema = new Schema<IProduct>(
     condition: { type: String, required: true },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     subcategory: { type: Schema.Types.ObjectId, ref: "Subcategory", required: true },
-    userId: { type: Schema.Types.ObjectId, ref: "User" },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
 );
