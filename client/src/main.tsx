@@ -11,6 +11,7 @@ import Layout from "./components/Layout.tsx";
 import CreateItem from "./pages/CreateItem.tsx";
 import { ThemeProvider } from "@material-tailwind/react";
 import PrivateRoute from "./components/PrivateRoute.tsx";
+import ViewItem from "./pages/ViewItem.tsx";
 
 const router = createBrowserRouter([
 
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
       { path: "/", element: <App /> },        
       { path: "signin", element: <SignIn /> },
       { path: "signup", element: <SignUp /> },
+      {path: "/item/:id", element:<ViewItem/>},
       {
         path: 'item',
         element: (

@@ -1,8 +1,33 @@
 import { RequestHandler } from "express";
 import { Product } from "../models/Product";
 import { errorHandler } from "../utils/error";
-import { ObjectCannedACL, PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3 } from "../utils/s3Config";
+
+export const getAllProducts: RequestHandler = async (req, res, next) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+    res.status(200).json(products);
+  } catch (error) {
+    return next(errorHandler(400, "A apărut o eroare la preluarea produselor."));
+  }
+};
+
+export const getProductById: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findById(id)
+      .populate("userId", "username")
+      .populate("category")
+      .populate("subcategory");
+    if (!product) {
+      return next(errorHandler(404, "Produsul nu a fost gasit."));
+    }
+    res.status(200).json(product);
+  } catch (error) {
+    return next(errorHandler(400, "A apărut o eroare la preluarea produsului."));
+  }
+};
 
 export const createProduct: RequestHandler = async (req, res, next) => {
   // console.log(req.files);
