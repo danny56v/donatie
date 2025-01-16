@@ -3,6 +3,7 @@ import { Product } from "../models/Product";
 import { errorHandler } from "../utils/error";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3 } from "../utils/s3Config";
+import sharp from "sharp";
 
 export const getAllProducts: RequestHandler = async (req, res, next) => {
   try {
@@ -48,10 +49,11 @@ export const createProduct: RequestHandler = async (req, res, next) => {
     const imageUrls: string[] = [];
 
     for (const file of files) {
+      const resizedImageBuffer = await sharp(file.buffer).resize({ width: 1980 , height: 1200, fit:'inside'}).toBuffer();
       const params = {
         Bucket: process.env.BUCKET_NAME,
         Key: `${Date.now()}-${file.originalname}`,
-        Body: file.buffer,
+        Body: resizedImageBuffer,
         ContentType: file.mimetype,
         // ACL: "public-read" as ObjectCannedACL,
       };
