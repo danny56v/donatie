@@ -47,8 +47,8 @@ const navigate = useNavigate();
 
         <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8">
           {products.map((product) => (
-            <div  key={product._id} className="group relative flex flex-col overflow-hidden rounded-lg bg-white" onClick={()=>handleClick(product._id)}>
-              <div className="h-32 aspect-h-3 aspect-w-3 bg-gray-200 sm:aspect-none group-hover:opacity-75 sm:h-48 sm:w-56">
+            <div  key={product._id} className="group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-lg" onClick={()=>handleClick(product._id)}>
+              <div className="h-32 aspect-h-3 aspect-w-3 bg-gray-200 sm:aspect-none group-hover:opacity-75 sm:h-48 ">
                 <img
                   alt={product.name}
                   src={product.imageUrls[0]}
