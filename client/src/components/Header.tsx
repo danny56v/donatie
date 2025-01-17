@@ -23,10 +23,10 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 const navigation = [
-  { name: "Dashboard", href: "/", current: true },
-  { name: "Team", href: "#", current: false },
-  { name: "Projects", href: "#", current: false },
-  { name: "Calendar", href: "#", current: false },
+  { name: "Acasă", href: "/", current: false },
+  // { name: "Anunțurile tale", href: "#", current: false },
+  { name: "Despre noi", href: "#", current: false },
+  { name: "fds", href: "#", current: false },
 ];
 
 function classNames(...classes) {
@@ -39,7 +39,7 @@ export default function Header() {
   const location = useLocation();
   const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated);
   // const loading = useSelector((state: RootState) => state.user.loading);
-  const[loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -51,15 +51,13 @@ export default function Header() {
           dispatch(signInSuccess(res.data.user));
         }
         dispatch(signInFailure());
-
       } catch (error) {
         const errorMessage =
           axios.isAxiosError(error) && error.response
             ? error.response.data.message || "A apărut o eroare la autentificare."
             : "A apărut o eroare neprevăzută.";
         dispatch(signInFailure(errorMessage));
-      }
-      finally {
+      } finally {
         setLoading(false);
       }
     };
@@ -122,9 +120,11 @@ export default function Header() {
                   <a
                     key={item.name}
                     href={item.href}
-                    aria-current={item.current ? "page" : undefined}
+                    aria-current={location.pathname === item.href ? "page" : undefined}
                     className={classNames(
-                      item.current ? "bg-gray-900 text-white" : "text-gray-900 hover:bg-gray-600 hover:text-white",
+                      location.pathname === item.href
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-900 hover:bg-gray-600 hover:text-white",
                       "rounded-md px-3 py-2 text-sm font-medium"
                     )}
                   >
@@ -232,9 +232,11 @@ export default function Header() {
               key={item.name}
               as="a"
               href={item.href}
-              aria-current={item.current ? "page" : undefined}
+              aria-current={location.pathname === item.href ? "page" : undefined}
               className={classNames(
-                item.current ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                location.pathname === item.href
+                  ? "bg-gray-900 text-white"
+                  : "text-gray-300 hover:bg-gray-700 hover:text-white",
                 "block rounded-md px-3 py-2 text-base font-medium"
               )}
             >

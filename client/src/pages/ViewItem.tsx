@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { Key, useEffect, useState } from "react";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import ImageModal from "../components/ImageModal";
+import Message from "../components/Message";
 
 interface IProduct {
   _id: string;
@@ -28,7 +29,7 @@ export default function ViewItem() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
-  const [product, setProduct] = useState<IProduct | null>(null);
+  const [product, setProduct] = useState(null);
 
   const { id } = useParams<{ id: string }>();
 
@@ -97,7 +98,7 @@ export default function ViewItem() {
             </div>
 
             <TabPanels className="aspect-h-1 aspect-w-1 w-full">
-              {product.imageUrls.map((image, index) => (
+              {product.imageUrls.map((image: string, index: number) => (
                 <TabPanel key={image}>
                   <div className=" h-[400px] w-[500px] overflow-hidden">
                     <img
@@ -189,21 +190,22 @@ export default function ViewItem() {
                 </fieldset>
               </div> */}
 
-              <div className="mt-10 flex">
+              {/* <div className="mt-10 flex">
                 <button
                   type="submit"
                   className="flex max-w-xs flex-1 items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 sm:w-full"
                 >
                   Add to bag
                 </button>
-              </div>
+              </div> */}
             </form>
 
             <section aria-labelledby="details-heading" className="mt-12">
               <h2 id="details-heading" className="sr-only">
-                Additional details
+                Additional details 
               </h2>
 
+                <Message userName={product.userId.username}/>
               {/* <div className="divide-y divide-gray-200 border-t">
                 {product.details.map((detail) => (
                   <Disclosure key={detail.name} as="div">
