@@ -62,7 +62,7 @@ export default function ImageModal({
                   alt=""
                   className={`h-16 w-16 cursor-pointer rounded ${
                     index === currentImageIndex
-                      ? "ring-2 ring-indigo-500"
+                      ? "ring-2 ring-red-500"
                       : "opacity-50"
                   }`}
                   onClick={() => setCurrentImageIndex(index)}
