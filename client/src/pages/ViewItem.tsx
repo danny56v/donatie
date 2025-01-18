@@ -90,7 +90,7 @@ export default function ViewItem() {
                     </span>
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none absolute inset-0 rounded-md ring-2 ring-transparent ring-offset-2 group-data-[selected]:ring-indigo-500"
+                      className="pointer-events-none absolute inset-0 rounded-md ring-2 ring-transparent ring-offset-2 "
                     />
                   </Tab>
                 ))}
@@ -201,9 +201,14 @@ export default function ViewItem() {
             </form>
 
             <section aria-labelledby="details-heading" className="mt-12">
-              <h2 id="details-heading" className="sr-only">
+              <h2 id="details-heading" className="">
                 Additional details 
               </h2>
+
+              <p>{product.phone}</p>
+              <p>{product.region}</p>
+              <p>{product.city}</p>
+              <p>{product.address}</p>
 
                 <Message userName={product.userId.username}/>
               {/* <div className="divide-y divide-gray-200 border-t">

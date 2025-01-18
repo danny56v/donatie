@@ -5,6 +5,10 @@ interface IProduct {
   description: string;
   imageUrls: string[];
   condition: string;
+  region: string;
+  city: string;
+  address: string;
+  phone: number;
   category: mongoose.Types.ObjectId;
   subcategory: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
@@ -16,6 +20,10 @@ const productSchema = new Schema<IProduct>(
     description: { type: String, required: true },
     imageUrls: [{ type: String, required: false }],
     condition: { type: String, required: true },
+    region: { type: String, required: true },
+    city: { type: String, required: true },
+    address: { type: String, required: true },
+    phone: { type: Number, required: true },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     subcategory: { type: Schema.Types.ObjectId, ref: "Subcategory", required: true },
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },

@@ -41,9 +41,9 @@ export const createProduct: RequestHandler = async (req, res, next) => {
     if (!req.user || !req.user.id) {
       return next(errorHandler(401, "Unauthorized: No user ID found."));
     }
-    const { name, description, condition, category, subcategory } = req.body;
+    const { name, description, condition, category, subcategory, region,city, address, phone } = req.body;
     // console.log(req.body)
-    if (!name || !description || !condition || !category || !subcategory) {
+    if (!name || !description || !condition || !category || !subcategory || !region || !city || !address || !phone) {
       return next(errorHandler(400, "Introduceti datele in toate campurile"));
     }
     const imageUrls: string[] = [];
@@ -71,6 +71,10 @@ export const createProduct: RequestHandler = async (req, res, next) => {
       condition,
       category,
       subcategory,
+      region,
+      city,
+      address,
+      phone,
       imageUrls,
       userId: req.user.id,
     });

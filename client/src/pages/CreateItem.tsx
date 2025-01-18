@@ -37,6 +37,10 @@ export default function CreateItem() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    region: "",
+    city: "",
+    address: "",
+    phone: "",
     condition: "nou",
     category: selectedCategory._id,
     subcategory: selectedSubcategory._id,
@@ -108,14 +112,13 @@ export default function CreateItem() {
     }
   }, [selectedCategory, dispatch]);
 
-
-useEffect(() => {
-  setFormData((prevData) => ({
-    ...prevData,
-    category: selectedCategory._id,
-    subcategory: selectedSubcategory._id,
-  }));
-}, [selectedCategory, selectedSubcategory]);
+  useEffect(() => {
+    setFormData((prevData) => ({
+      ...prevData,
+      category: selectedCategory._id,
+      subcategory: selectedSubcategory._id,
+    }));
+  }, [selectedCategory, selectedSubcategory]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,6 +129,10 @@ useEffect(() => {
       !formData.category ||
       !formData.subcategory ||
       !formData.condition ||
+      !formData.region ||
+      !formData.city ||
+      !formData.address ||
+      !formData.phone ||
       selectedFiles.length === 0
     ) {
       // alert("Toate campurile sunt obligatorii");
@@ -147,6 +154,10 @@ useEffect(() => {
       submissionData.append("description", formData.description || "");
       submissionData.append("category", formData.category || "");
       submissionData.append("subcategory", formData.subcategory || "");
+      submissionData.append("region", formData.region || "");
+      submissionData.append("city", formData.city || "");
+      submissionData.append("address", formData.address || "");
+      submissionData.append("phone", formData.phone || "");
       submissionData.append("condition", formData.condition || "");
 
       selectedFiles.forEach((file, index) => {
@@ -287,10 +298,10 @@ useEffect(() => {
                     </div>
                   )}
                   {errorCategories && (
-                      <div className="text-red-600 text-center">
-                        <span className="text-sm">Eroare: {errorCategories}</span>
-                      </div>
-                    )}
+                    <div className="text-red-600 text-center">
+                      <span className="text-sm">Eroare: {errorCategories}</span>
+                    </div>
+                  )}
                   <ListboxButton
                     className={`grid w-full cursor-default grid-cols-1 rounded-md bg-white py-1.5 pl-3 pr-2 text-left text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 ${
                       !selectedCategory._id ? "cursor-not-allowed bg-gray-100 text-gray-400" : ""
@@ -367,7 +378,84 @@ useEffect(() => {
               </div>
             </div>
             <div className="basis-1/2">
+            <div className="flex gap-6">
+            <div className="sm:col-span-4 basis-1/2">
+                    <label htmlFor="name" className="block text-sm/6 font-medium text-gray-900">
+                      Regiune
+                    </label>
+                    <div className="mt-2">
+                      <div className="flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+                        <input
+                          id="region"
+                          name="region"
+                          type="text"
+                          value={formData.region}
+                          onChange={handleChange}
+                          placeholder="Mun. Chișinău, Mun. Bălți, etc."
+                          className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="sm:col-span-4 basis-1/2">
+                    <label htmlFor="name" className="block text-sm/6 font-medium text-gray-900">
+                      Oraș
+                    </label>
+                    <div className="mt-2">
+                      <div className="flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+                        <input
+                          id="city"
+                          name="city"
+                          type="text"
+                          value={formData.city}
+                          onChange={handleChange}
+                          placeholder="Chișinău, Bălți, etc."
+                          className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  </div>
+                  <div className="flex gap-6 py-4">
+                  <div className="sm:col-span-4 basis-2/3 ">
+                    <label htmlFor="name" className="block text-sm/6 font-medium text-gray-900">
+                      Adresa
+                    </label>
+                    <div className="mt-2">
+                      <div className="flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+                        <input
+                          id="address"
+                          name="address"
+                          type="text"
+                          value={formData.address}
+                          onChange={handleChange}
+                          placeholder="str. Ștefan cel Mare, 1"
+                          className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="sm:col-span-4 basis-1/3">
+                    <label htmlFor="name" className="block text-sm/6 font-medium text-gray-900">
+                      Telefon
+                    </label>
+                    <div className="mt-2">
+                      <div className="flex items-center rounded-md bg-white pl-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-600">
+                        <input
+                          id="phone"
+                          name="phone"
+                          type="number"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          placeholder="069xxxxxx"
+                          className="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  </div>
               <div className="col-span-full">
+                
                 <label htmlFor="cover-photo" className="block text-sm/6 font-medium text-gray-900">
                   Cover photo
                 </label>
@@ -439,7 +527,6 @@ useEffect(() => {
                 </button>
               </div>
               {error && <div className="text-red-500 text-sm">{error}</div>}
-
             </div>
           </div>
         </form>

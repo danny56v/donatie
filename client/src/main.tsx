@@ -9,16 +9,17 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store.ts";
 import Layout from "./components/Layout.tsx";
 import CreateItem from "./pages/CreateItem.tsx";
-import { ThemeProvider } from "@material-tailwind/react";
+import { ThemeProvider } from "./context/ThemeContext.tsx";
 import PrivateRoute from "./components/PrivateRoute.tsx";
 import ViewItem from "./pages/ViewItem.tsx";
+import Header from "./components/Header.tsx";
 
 const router = createBrowserRouter([
 
 
   {
     path: '/',
-    element: <Layout/>,
+    element: <App/>,
     children: [
       { path: "/", element: <App /> },        
       { path: "signin", element: <SignIn /> },

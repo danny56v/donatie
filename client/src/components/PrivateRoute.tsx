@@ -1,6 +1,3 @@
-
-
-
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, Navigate } from "react-router-dom";
 import { RootState } from "../redux/store";
@@ -55,30 +52,3 @@ export default function PrivateRoute({ children }: { children: React.ReactNode }
 
   return isAuthenticated ? children : <Navigate to="/signin" />;
 }
-
-// // import { useDispatch, useSelector } from 'react-redux';
-// // import { Outlet, Navigate } from 'react-router-dom';
-// // import { RootState } from '../redux/store';
-// // import { useEffect } from 'react';
-// // import axios from 'axios';
-// // import { signInSuccess } from '../redux/slices/userSlice';
-
-// // export default function PrivateRoute({children}: {children: React.ReactNode}) {
-// //   const { isAuthenticated } = useSelector((state: RootState) => state.user);
-// //   const dispatch = useDispatch();
-// //   useEffect(() => {
-// //     const checkAuth = async () => {
-// //       try {
-// //         const res = await axios.get("/api/auth/checkAuth");
-// //         if (res.data.isAuthenticated) {
-// //           dispatch(signInSuccess(res.data.user));
-// //         }
-// //       } catch (error) {
-// //         console.error("Eroare la verificarea autentificării:", error);
-// //       }
-// //     };
-
-// //     checkAuth();
-// //   }, [dispatch]);
-// //   return isAuthenticated ?  children : <Navigate to='/signin' />;
-// // }
