@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { signInFailure, signInStart, signInSuccess } from "../redux/slices/userSlice";
 
-export default function PrivateRoute({ children }: { children: React.ReactNode }) {
+export default function PrivateRoute() {
   const { isAuthenticated } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
 
@@ -50,5 +50,5 @@ export default function PrivateRoute({ children }: { children: React.ReactNode }
     return <div>Loading...</div>;
   }
 
-  return isAuthenticated ? children : <Navigate to="/signin" />;
+  return isAuthenticated ? <Outlet/> : <Navigate to="/signin" />;
 }

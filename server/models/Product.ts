@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-interface IProduct {
+export interface IProduct {
   name: string;
   description: string;
   imageUrls: string[];

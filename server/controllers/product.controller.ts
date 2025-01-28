@@ -4,13 +4,31 @@ import { errorHandler } from "../utils/error";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3 } from "../utils/s3Config";
 import sharp from "sharp";
+import { Subcategory } from "../models/Subcategory";
 
 export const getAllProducts: RequestHandler = async (req, res, next) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
-    res.status(200).json(products);
+    const { page = "1", limit = "10" } = req.query;
+
+    const pageNumber = parseInt(page as string, 10);
+    const limitNumber = parseInt(limit as string, 10);
+
+    const startIndex = (pageNumber - 1) * limitNumber;
+
+    const products = await Product.find().skip(startIndex).limit(limitNumber).sort({ createdAt: -1 });
+
+    const totalProducts = await Product.countDocuments();
+
+    res.status(200).json({
+      data: products,
+      pagination: {
+        totalProducts,
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalProducts / limitNumber),
+      },
+    });
   } catch (error) {
-    return next(errorHandler(400, "A apărut o eroare la preluarea produselor."));
+    return next(errorHandler(400, "A aparut o eroare la paginare"));
   }
 };
 
@@ -41,7 +59,7 @@ export const createProduct: RequestHandler = async (req, res, next) => {
     if (!req.user || !req.user.id) {
       return next(errorHandler(401, "Unauthorized: No user ID found."));
     }
-    const { name, description, condition, category, subcategory, region,city, address, phone } = req.body;
+    const { name, description, condition, category, subcategory, region, city, address, phone } = req.body;
     // console.log(req.body)
     if (!name || !description || !condition || !category || !subcategory || !region || !city || !address || !phone) {
       return next(errorHandler(400, "Introduceti datele in toate campurile"));
@@ -49,7 +67,9 @@ export const createProduct: RequestHandler = async (req, res, next) => {
     const imageUrls: string[] = [];
 
     for (const file of files) {
-      const resizedImageBuffer = await sharp(file.buffer).resize({ width: 1980 , height: 1200, fit:'inside'}).toBuffer();
+      const resizedImageBuffer = await sharp(file.buffer)
+        .resize({ width: 1980, height: 1200, fit: "inside" })
+        .toBuffer();
       const params = {
         Bucket: process.env.BUCKET_NAME,
         Key: `${Date.now()}-${file.originalname}`,
@@ -79,9 +99,64 @@ export const createProduct: RequestHandler = async (req, res, next) => {
       userId: req.user.id,
     });
     const savedProduct = await newProduct.save();
+    await Subcategory.findByIdAndUpdate(subcategory, {
+      $push: { products: savedProduct._id },
+    });
     res.status(201).json(savedProduct);
   } catch (error) {
     // console.log(error)
     return next(errorHandler(400, "A apărut o eroare la postarea produsului."));
+  }
+};
+
+export const getRecommendedProducts: RequestHandler = async (req, res, next) => {
+  const { subcategoryId, productId } = req.params;
+
+  try {
+    const subcategory = await Subcategory.findById(subcategoryId).populate({
+      path: "products",
+      match: { _id: { $ne: productId } },
+      options: { limit: 5 },
+      select: "name description imageUrls",
+    });
+    console.log(subcategory);
+    if (!subcategory || !subcategory.products || subcategory.products.length === 0) {
+      res.status(200).json({ message: "Nu sunt recomandari disponibile pentru această subcategorie." });
+      return;
+    }
+
+    const recommendedProducts = (subcategory.products as any[]).map((product) => ({
+      ...product.toObject(),
+      imageUrls: product.imageUrls.slice(0, 1),
+    }));
+    res.status(200).json(recommendedProducts);
+  } catch (error) {
+    return next(errorHandler(400, "A apărut o eroare la gasirea recomandarilor."));
+  }
+};
+
+export const pagination: RequestHandler = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNumber = parseInt(page as string, 10);
+    const limitNumber = parseInt(limit as string, 10);
+
+    const startIndex = (pageNumber - 1) * limitNumber;
+
+    const products = await Product.find().skip(startIndex).limit(limitNumber).sort({ createdAt: -1 });
+
+    const totalProducts = await Product.countDocuments();
+
+    res.status(200).json({
+      data: products,
+      pagination: {
+        totalProducts,
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalProducts / limitNumber),
+      },
+    });
+  } catch (error) {
+    return next(errorHandler(400, "A aparut o eroare la paginare"));
   }
 };

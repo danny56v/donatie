@@ -1,4 +1,4 @@
-import { Avatar } from './catalyst/avatar'
+import { Avatar } from "./catalyst/avatar";
 import {
   Dropdown,
   DropdownButton,
@@ -6,10 +6,10 @@ import {
   DropdownItem,
   DropdownLabel,
   DropdownMenu,
-} from './catalyst/dropdown'
-import { Navbar, NavbarDivider, NavbarItem, NavbarLabel, NavbarSection, NavbarSpacer } from './catalyst/navbar'
-import { Sidebar, SidebarBody, SidebarHeader, SidebarItem, SidebarLabel, SidebarSection } from './catalyst/sidebar'
-import { StackedLayout } from './catalyst/stacked-layout'
+} from "./catalyst/dropdown";
+import { Navbar, NavbarDivider, NavbarItem, NavbarLabel, NavbarSection, NavbarSpacer } from "./catalyst/navbar";
+import { Sidebar, SidebarBody, SidebarHeader, SidebarItem, SidebarLabel, SidebarSection } from "./catalyst/sidebar";
+import { StackedLayout } from "./catalyst/stacked-layout";
 import {
   ArrowRightStartOnRectangleIcon,
   ChevronDownIcon,
@@ -18,21 +18,34 @@ import {
   PlusIcon,
   ShieldCheckIcon,
   UserIcon,
-} from '@heroicons/react/16/solid'
-import { InboxIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
-import ThemeToggle from './ThemeToggle'
+} from "@heroicons/react/16/solid";
+import { InboxIcon, MagnifyingGlassIcon, UserCircleIcon } from "@heroicons/react/20/solid";
+import ThemeToggle from "./ThemeToggle";
+import { data, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { RootState } from "../redux/store";
+import axios from "axios";
+import {
+  signInFailure,
+  signInStart,
+  signInSuccess,
+  signOutFailure,
+  signOutStart,
+  signOutSuccess,
+} from "../redux/slices/userSlice";
+import { Button } from "./catalyst/button";
 
-
-interface HeaderProps {
-children: React.ReactNode
-}
+// interface HeaderProps {
+// // children: React.ReactNode
+// }
 const navItems = [
-  { label: 'Home', url: '/' },
-  { label: 'Events', url: '/events' },
-  { label: 'Orders', url: '/orders' },
-  { label: 'Broadcasts', url: '/broadcasts' },
-  { label: 'Settings', url: '/settings' },
-]
+  { label: "Acasă", url: "/" },
+  { label: "Events", url: "/events" },
+  { label: "Orders", url: "/orders" },
+  { label: "Broadcasts", url: "/broadcasts" },
+  { label: "Settings", url: "/settings" },
+];
 
 function TeamDropdownMenu() {
   return (
@@ -56,14 +69,73 @@ function TeamDropdownMenu() {
         <DropdownLabel>New team&hellip;</DropdownLabel>
       </DropdownItem>
     </DropdownMenu>
-  )
+  );
 }
 
-const Header: React.FC<HeaderProps> = ({children}) => {
+const Header: React.FC = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated);
+  // const loading = useSelector((state: RootState) => state.user.loading);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get("/api/auth/checkAuth");
+        dispatch(signInStart());
+        if (res.data.isAuthenticated) {
+          dispatch(signInSuccess(res.data.user));
+        }
+        dispatch(signInFailure(res.data.message));
+      } catch (error) {
+        const errorMessage =
+          axios.isAxiosError(error) && error.response
+            ? error.response.data.message || "A apărut o eroare la autentificare."
+            : "A apărut o eroare neprevăzută.";
+        dispatch(signInFailure(errorMessage));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [dispatch]);
+
+  const handleSignOut = async () => {
+    try {
+      dispatch(signOutStart());
+      const res = await axios.post("/api/auth/signout");
+      // const res = await fetch("api/auth/signout", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // });
+      // const data = await res.json();
+
+      dispatch(signOutSuccess());
+      navigate("/");
+    } catch (error) {
+      const errorMessage =
+        axios.isAxiosError(error) && error.response
+          ? error.response.data.message || "A apărut o eroare la autentificare."
+          : "A apărut o eroare neprevăzută.";
+      dispatch(signOutFailure(errorMessage));
+    }
+  };
+  const handleSignIn = () => {
+    navigate("/signin");
+  };
+  const handleSignUp = () => {
+    navigate("/signup");
+  };
   return (
     <StackedLayout
       navbar={
-        <Navbar>
+        <Navbar className="">
           <Dropdown>
             <DropdownButton as={NavbarItem} className="max-lg:hidden">
               <Avatar src="/tailwind-logo.svg" />
@@ -82,43 +154,57 @@ const Header: React.FC<HeaderProps> = ({children}) => {
           </NavbarSection>
           <NavbarSpacer />
           <NavbarSection>
-            <NavbarItem href="/search" aria-label="Search">
+            <NavbarItem>
+              <ThemeToggle />
+            </NavbarItem>
+            {/* <NavbarItem href="/search" aria-label="Search">
               <MagnifyingGlassIcon />
-            </NavbarItem>
-            <NavbarItem href="/inbox" aria-label="Inbox">
-              <InboxIcon />
-            </NavbarItem>
-            <Dropdown>
-              <DropdownButton as={NavbarItem}>
-                <Avatar src="/profile-photo.jpg" square />
-              </DropdownButton>
-              <DropdownMenu className="min-w-64" anchor="bottom end">
-                <DropdownItem href="/my-profile">
-                  <UserIcon />
-                  <DropdownLabel>My profile</DropdownLabel>
-                </DropdownItem>
-                <DropdownItem href="/settings">
-                  <Cog8ToothIcon />
-                  <DropdownLabel>Settings</DropdownLabel>
-                </DropdownItem>
-                <DropdownDivider />
-                <DropdownItem href="/privacy-policy">
-                  <ShieldCheckIcon />
-                  <DropdownLabel>Privacy policy</DropdownLabel>
-                </DropdownItem>
-                <DropdownItem href="/share-feedback">
-                  <LightBulbIcon />
-                  <DropdownLabel>Share feedback</DropdownLabel>
-                </DropdownItem>
-                <DropdownDivider />
-                <DropdownItem href="/logout">
-                  <ArrowRightStartOnRectangleIcon />
-                  <DropdownLabel>Sign out</DropdownLabel>
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
+            </NavbarItem> */}
+            {isAuthenticated ? (
+              <>
+                <NavbarItem href="/inbox" aria-label="Inbox">
+                  <InboxIcon />
+                </NavbarItem>
+                <Dropdown>
+                  <DropdownButton as={NavbarItem}>
+                    <UserCircleIcon />
+                  </DropdownButton>
+                  <DropdownMenu className="min-w-64" anchor="bottom end">
+                    <DropdownItem href="/my-profile">
+                      <UserIcon />
+                      <DropdownLabel>My profile</DropdownLabel>
+                    </DropdownItem>
+                    <DropdownItem href="/settings">
+                      <Cog8ToothIcon />
+                      <DropdownLabel>Settings</DropdownLabel>
+                    </DropdownItem>
+                    <DropdownDivider />
+                    <DropdownItem href="/privacy-policy">
+                      <ShieldCheckIcon />
+                      <DropdownLabel>Privacy policy</DropdownLabel>
+                    </DropdownItem>
+                    <DropdownItem href="/share-feedback">
+                      <LightBulbIcon />
+                      <DropdownLabel>Share feedback</DropdownLabel>
+                    </DropdownItem>
+                    <DropdownDivider />
+                    <DropdownItem onClick={handleSignOut}>
+                      <ArrowRightStartOnRectangleIcon />
+                      <DropdownLabel>Sign out</DropdownLabel>
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+              </>
+            ) : (
+              <>
+                {location.pathname === "/signin" || location.pathname === "/signup" ? (
+                  <></>
+                ) : (
+                  <Button onClick={handleSignIn}>Autentificare</Button>
+                )}
+              </>
+            )}
           </NavbarSection>
-          <ThemeToggle/>
         </Navbar>
       }
       sidebar={
@@ -145,169 +231,14 @@ const Header: React.FC<HeaderProps> = ({children}) => {
         </Sidebar>
       }
     >
-{children}
+      <main className=" p-4 ">
+        <Outlet />
+      </main>
     </StackedLayout>
-  )
-}
+  );
+};
 
-export default Header
-
-
-
-
-// import { Avatar } from './catalyst/avatar'
-// import {
-//   Dropdown,
-//   DropdownButton,
-//   DropdownDivider,
-//   DropdownItem,
-//   DropdownLabel,
-//   DropdownMenu,
-// } from './catalyst/dropdown'
-// import { Navbar, NavbarDivider, NavbarItem, NavbarLabel, NavbarSection, NavbarSpacer } from './catalyst/navbar'
-// import { Sidebar, SidebarBody, SidebarHeader, SidebarItem, SidebarLabel, SidebarSection } from './catalyst/sidebar'
-// import { StackedLayout } from './catalyst/stacked-layout'
-// import {
-//   ArrowRightStartOnRectangleIcon,
-//   ChevronDownIcon,
-//   Cog8ToothIcon,
-//   LightBulbIcon,
-//   PlusIcon,
-//   ShieldCheckIcon,
-//   UserIcon,
-// } from '@heroicons/react/16/solid'
-// import { InboxIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
-// import ThemeToggle from './catalyst/ThemeToggle'
-
-// const navItems = [
-//   { label: 'Home', url: '/' },
-//   { label: 'Events', url: '/events' },
-//   { label: 'Orders', url: '/orders' },
-//   { label: 'Broadcasts', url: '/broadcasts' },
-//   { label: 'Settings', url: '/settings' },
-// ]
-
-// function TeamDropdownMenu() {
-//   return (
-//     <DropdownMenu className="min-w-80 lg:min-w-64" anchor="bottom start">
-//       <DropdownItem href="/teams/1/settings">
-//         <Cog8ToothIcon />
-//         <DropdownLabel>Settings</DropdownLabel>
-//       </DropdownItem>
-//       <DropdownDivider />
-//       <DropdownItem href="/teams/1">
-//         <Avatar slot="icon" src="/tailwind-logo.svg" />
-//         <DropdownLabel>Tailwind Labs</DropdownLabel>
-//       </DropdownItem>
-//       <DropdownItem href="/teams/2">
-//         <Avatar slot="icon" initials="WC" className="bg-purple-500 text-white" />
-//         <DropdownLabel>Workcation</DropdownLabel>
-//       </DropdownItem>
-//       <DropdownDivider />
-//       <DropdownItem href="/teams/create">
-//         <PlusIcon />
-//         <DropdownLabel>New team&hellip;</DropdownLabel>
-//       </DropdownItem>
-//     </DropdownMenu>
-//   )
-// }
-
-// export default function Header() {
-//   return (
-//     <StackedLayout
-//       navbar={
-//         <Navbar>
-//           <Dropdown>
-//             <DropdownButton as={NavbarItem} className="max-lg:hidden">
-//               <Avatar src="../assets/react.svg" />
-//               <NavbarLabel>Tailwind Labs</NavbarLabel>
-//               <ChevronDownIcon />
-//             </DropdownButton>
-//             <TeamDropdownMenu />
-//           </Dropdown>
-//           <NavbarDivider className="max-lg:hidden" />
-//           <NavbarSection className="max-lg:hidden">
-//             {navItems.map(({ label, url }) => (
-//               <NavbarItem key={label} href={url}>
-//                 {label}
-//               </NavbarItem>
-//             ))}
-//           </NavbarSection>
-//           <NavbarSpacer />
-//           <NavbarSection>
-//             <NavbarItem href="/search" aria-label="Search">
-//               <MagnifyingGlassIcon />
-//             </NavbarItem>
-//             <NavbarItem href="/inbox" aria-label="Inbox">
-//               <InboxIcon />
-//             </NavbarItem>
-//             <ThemeToggle/>
-//             <Dropdown>
-//               <DropdownButton as={NavbarItem}>
-//                 <Avatar src="/profile-photo.jpg" square />
-//               </DropdownButton>
-//               <DropdownMenu className="min-w-64" anchor="bottom end">
-//                 <DropdownItem href="/my-profile">
-//                   <UserIcon />
-//                   <DropdownLabel>My profile</DropdownLabel>
-//                 </DropdownItem>
-//                 <DropdownItem href="/settings">
-//                   <Cog8ToothIcon />
-//                   <DropdownLabel>Settings</DropdownLabel>
-//                 </DropdownItem>
-//                 <DropdownDivider />
-//                 <DropdownItem href="/privacy-policy">
-//                   <ShieldCheckIcon />
-//                   <DropdownLabel>Privacy policy</DropdownLabel>
-//                 </DropdownItem>
-//                 <DropdownItem href="/share-feedback">
-//                   <LightBulbIcon />
-//                   <DropdownLabel>Share feedback</DropdownLabel>
-//                 </DropdownItem>
-//                 <DropdownDivider />
-//                 <DropdownItem href="/logout">
-//                   <ArrowRightStartOnRectangleIcon />
-//                   <DropdownLabel>Sign out</DropdownLabel>
-//                 </DropdownItem>
-//               </DropdownMenu>
-//             </Dropdown>
-//           </NavbarSection>
-//         </Navbar>
-//       }
-//       sidebar={
-//         <Sidebar>
-//           <SidebarHeader>
-//             <Dropdown>
-//               <DropdownButton as={SidebarItem} className="lg:mb-2.5">
-//                 <Avatar src="/tailwind-logo.svg" />
-//                 <SidebarLabel>Tailwind Labs</SidebarLabel>
-//                 <ChevronDownIcon />
-//               </DropdownButton>
-//               <TeamDropdownMenu />
-//             </Dropdown>
-//           </SidebarHeader>
-//           <SidebarBody>
-//             <SidebarSection>
-//               {navItems.map(({ label, url }) => (
-//                 <SidebarItem key={label} href={url}>
-//                   {label}
-//                 </SidebarItem>
-//               ))}
-//             </SidebarSection>
-//           </SidebarBody>
-//         </Sidebar>
-//       }
-//     >
-//      {/* <Home/> */}
-//      <h1>Helllo</h1>
-//     </StackedLayout>
-//   )
-// }
-
-
-
-
-
+export default Header;
 
 // // import {
 

@@ -4,8 +4,13 @@ import { signUpFailure, signUpStart, signUpSuccess } from "../redux/slices/userS
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../redux/store";
 import axios from "axios";
+import { ErrorMessage, Field, FieldGroup, Fieldset, Label, Legend } from "../components/catalyst/fieldset";
+import { Heading } from "../components/catalyst/heading";
+import { Text, TextLink } from "../components/catalyst/text";
+import { Input } from "../components/catalyst/input";
+import { Button } from "../components/catalyst/button";
 
-export default function Example() {
+export default function SignUp() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -59,7 +64,82 @@ export default function Example() {
   };
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+      <form action="#" onSubmit={handleSubmit}>
+        <div className="flex flex-1 flex-col  justiy-center max-w-md mx-auto px-9 py-5">
+          <Fieldset className=" flex flex-col ">
+            <Heading className=" text-center">Înregistrare</Heading>
+            <Text className="text-center"> Completează toate câmpurile.</Text>
+            <FieldGroup>
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-4">
+                <Field>
+                  <Label>Prenume</Label>
+                  <Input name="prenume" required type="text" placeholder="Ion" />
+                </Field>
+                <Field>
+                  <Label>Nume</Label>
+                  <Input name="nume" type="text" required placeholder="Chirtoaca" />
+                </Field>
+              </div>
+              <Field>
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  name="username"
+                  id="username"
+                  type="text"
+                  invalid={Boolean(error)}
+                  required
+                  autoComplete="username"
+                  onChange={handleChange}
+                  value={formData.username}
+                  placeholder="ion212"
+                ></Input>
+              </Field>
+              <Field>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  name="email"
+                  id="email"
+                  type="email"
+                  invalid={Boolean(error)}
+                  required
+                  autoComplete="email"
+                  onChange={handleChange}
+                  value={formData.email}
+                  placeholder="ion@gmail.com"
+                ></Input>
+              </Field>
+              <Field>
+                <Label htmlFor="password">Parola</Label>
+                <Input
+                  name="password"
+                  id="password"
+                  type="password"
+                  invalid={Boolean(error)}
+                  required
+                  autoComplete="current-password"
+                  onChange={handleChange}
+                  value={formData.password}
+                  placeholder="********"
+                ></Input>
+              </Field>
+
+              <Button type="submit" disabled={loading} className="w-full cursor-pointer">
+                {loading ? "Loading..." : "Înregistrare"}
+              </Button>
+              <div className="text-center flex justify-center space-x-4 ">
+                <Text>Ai deja un cont existent? </Text>
+                <TextLink href="/signin" className="text-center">
+                  Loghează-te
+                </TextLink>
+              </div>
+              <Field>{error && <ErrorMessage>{error}</ErrorMessage>}</Field>
+              {/* <Button type="submit" color="light" className="w-full">Înregistrare</Button> */}
+              {/* {error && <ErrorMessage>{error}</ErrorMessage>} */}
+            </FieldGroup>
+          </Fieldset>
+        </div>
+      </form>
+      {/* <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             alt="Your Company"
@@ -116,7 +196,7 @@ export default function Example() {
                   <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
                     Forgot password?
                   </a>
-                </div> */}
+                </div> //////
               </div>
               <div className="mt-2">
                 <input
@@ -152,7 +232,7 @@ export default function Example() {
             </a>
           </p>
         </div>
-      </div>
+      </div> */}
     </>
   );
 }

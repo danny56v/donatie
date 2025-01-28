@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IUser } from "../../interfaces/IUser";
-import { Token } from "@mui/icons-material";
+import { IUser } from "../../interfaces/Interfaces";
+
 
 interface UserState {
   currentUser: IUser | null;
