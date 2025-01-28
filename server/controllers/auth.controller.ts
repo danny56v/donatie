@@ -17,7 +17,6 @@ interface SignInRequestBody {
   password: string;
 }
 
-
 export const checkAuth: RequestHandler = (req, res) => {
   if (req.user) {
     res.status(200).json({ isAuthenticated: true, user: req.user });
@@ -83,8 +82,11 @@ export const signin: RequestHandler<{}, {}, SignInRequestBody> = async (req, res
     if (!validPassword) return next(errorHandler(404, "Email sau Parolă greșită"));
     const token = jwt.sign({ id: validUser._id, isAdmin: validUser.isAdmin }, process.env.JWT_SECRET as string);
     const { password: hashedPassword, ...rest } = validUser;
-    const expiryDate = new Date(Date.now() + 3600000);
-    res.cookie("access_token", token, { httpOnly: true, secure: true, expires: expiryDate }).status(200).json({user: rest, token});
+    const expiryDate = new Date(Date.now() + 60 * 60 * 24 * 100);
+    res
+      .cookie("access_token", token, { httpOnly: true, secure: true, expires: expiryDate })
+      .status(200)
+      .json({ user: rest, token });
   } catch (error) {
     return next(errorHandler(500, "Eroare logare!"));
   }

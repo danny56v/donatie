@@ -4,9 +4,13 @@ import { signInFailure, signInStart, signInSuccess } from "../redux/slices/userS
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../redux/store";
 import axios from "axios";
+import { ErrorMessage, Field, FieldGroup, Fieldset, Label, Legend } from "../components/catalyst/fieldset";
+import { Heading } from "../components/catalyst/heading";
+import { Text, TextLink } from "../components/catalyst/text";
+import { Input } from "../components/catalyst/input";
+import { Button } from "../components/catalyst/button";
 
-
-export default function Example() {
+export default function SignIn() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -40,7 +44,7 @@ export default function Example() {
       //   dispatch(signInFailure(res.data.message));
       //   return;
       // }
-      const {user} = res.data;
+      const { user } = res.data;
 
       dispatch(signInSuccess(user));
       navigate("/");
@@ -59,7 +63,60 @@ export default function Example() {
   };
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+      <form action="#" onSubmit={handleSubmit}>
+        <div className="flex flex-1 flex-col  justiy-center max-w-md mx-auto px-9 py-12">
+          <Fieldset className=" flex flex-col ">
+            <Heading className=" text-center">Autentificare</Heading>
+            <Text className="text-center"> Completează toate câmpurile.</Text>
+            <FieldGroup>
+              <Field>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  name="email"
+                  id="email"
+                  type="email"
+                  invalid={Boolean(error)}
+                  required
+                  autoComplete="email"
+                  onChange={handleChange}
+                  value={formData.email}
+                  placeholder="ion@gmail.com"
+                ></Input>
+              </Field>
+              <Field>
+                <Label htmlFor="password">Parola</Label>
+                <Input
+                  name="password"
+                  id="password"
+                  type="password"
+                  invalid={Boolean(error)}
+                  required
+                  autoComplete="current-password"
+                  onChange={handleChange}
+                  value={formData.password}
+                  placeholder="********"
+                ></Input>
+              </Field>
+
+              <Button type="submit" disabled={loading} className="w-full cursor-pointer">
+                {loading ? "Loading..." : "Autenficare"}
+              </Button>
+              <div className="text-center flex justify-center space-x-4 ">
+               <Text>Nu ai un cont? </Text>
+                <TextLink href="/signup" className="text-center">
+                  Înregistrare
+                </TextLink>
+              </div>
+              {/* <Button type="submit" color="light" className="w-full">Înregistrare</Button> */}
+              <Field>
+
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+              </Field>
+            </FieldGroup>
+          </Fieldset>
+        </div>
+      </form>
+      {/* <div className="flex  flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             alt="Your Company"
@@ -100,7 +157,8 @@ export default function Example() {
                   <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
                     Forgot password?
                   </a>
-                </div> */}
+                </div> *
+                ////////////
               </div>
               <div className="mt-2">
                 <input
@@ -136,7 +194,7 @@ export default function Example() {
             </a>
           </p>
         </div>
-      </div>
+      </div> */}
     </>
   );
 }

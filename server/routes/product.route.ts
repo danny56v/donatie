@@ -1,5 +1,11 @@
 import express, { Router } from "express";
-import { createProduct, getAllProducts, getProductById } from "../controllers/product.controller";
+import {
+  createProduct,
+  getAllProducts,
+  getProductById,
+  getRecommendedProducts,
+  pagination,
+} from "../controllers/product.controller";
 import { verifyToken } from "../middleware/verifyUser";
 import multer from "multer";
 
@@ -8,7 +14,11 @@ const upload = multer({ storage: storage });
 
 const router: Router = express.Router();
 router.get("/", getAllProducts);
-router.post("/", verifyToken, upload.array("images", 5), createProduct);
+router.post("/", verifyToken, upload.array("images", 10), createProduct);
 router.get("/:id", getProductById);
+
+router.get("/recommended/:subcategoryId/:productId", getRecommendedProducts);
+
+router.get("/pagination", pagination);
 
 export default router;
