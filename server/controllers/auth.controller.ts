@@ -11,6 +11,8 @@ interface SignUpRequestBody {
   username: string;
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
 }
 interface SignInRequestBody {
   email: string;
@@ -26,10 +28,10 @@ export const checkAuth: RequestHandler = (req, res) => {
 };
 
 export const signup: RequestHandler<{}, {}, SignUpRequestBody> = async (req, res, next) => {
-  const { email, username, password } = req.body;
+  const { email, username, password, firstName, lastName } = req.body;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!email || !password || !username) {
+  if (!email || !password || !username || !firstName || !lastName) {
     return next(errorHandler(400, "Toate câmpurile sunt obligatorii."));
   }
   if (!emailRegex.test(email)) {
@@ -44,7 +46,7 @@ export const signup: RequestHandler<{}, {}, SignUpRequestBody> = async (req, res
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, username, password: hashedPassword });
+    const newUser = new User({ email, username, firstName, lastName, password: hashedPassword });
     await newUser.save();
 
     // console.log(newUser);

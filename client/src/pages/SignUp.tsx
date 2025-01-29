@@ -14,6 +14,8 @@ export default function SignUp() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
     username: "",
     email: "",
     password: "",
@@ -24,7 +26,7 @@ export default function SignUp() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.email || !formData.password || !formData.username) {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.username) {
       dispatch(signUpFailure("Toate campurile sunt obligatorii. "));
       return;
     }
@@ -47,6 +49,7 @@ export default function SignUp() {
       //   dispatch(signUpFailure(res.data.message || "Eroare la autentificare"));
       //   return;
       // }
+      // console.log(res)
       dispatch(signUpSuccess());
       navigate("/signin");
     } catch (error) {
@@ -73,11 +76,27 @@ export default function SignUp() {
               <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-4">
                 <Field>
                   <Label>Prenume</Label>
-                  <Input name="prenume" required type="text" placeholder="Ion" />
+                  <Input
+                    name="firstName"
+                    required
+                    type="text"
+                    placeholder="Ion"
+                    invalid={Boolean(error)}
+                    onChange={handleChange}
+                    value={formData.firstName}
+                  />
                 </Field>
                 <Field>
                   <Label>Nume</Label>
-                  <Input name="nume" type="text" required placeholder="Chirtoaca" />
+                  <Input
+                    name="lastName"
+                    type="text"
+                    required
+                    placeholder="Chirtoaca"
+                    invalid={Boolean(error)}
+                    onChange={handleChange}
+                    value={formData.lastName}
+                  />
                 </Field>
               </div>
               <Field>
