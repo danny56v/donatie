@@ -160,3 +160,30 @@ export const pagination: RequestHandler = async (req, res, next) => {
     return next(errorHandler(400, "A aparut o eroare la paginare"));
   }
 };
+
+export const getUserProducts: RequestHandler = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const products = await Product.find({ userId: userId })
+    .populate("category", "name")
+    .populate("subcategory", "name")
+    .select("name description imageUrls condition category subcategory createdAt updatedAt")
+    // .lean(); // ✅ `.lean()` trebuie să vină după `.populate()`
+    
+    const formattedProducts = products.map((product) => ({
+      _id:product._id,
+      name: product.name,
+      description: product.description,
+      image: product.imageUrls?.[0] || null, // Prima imagine sau null dacă nu există
+      category: product.category,
+      subcategory: product.subcategory,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
+    }));
+
+    res.status(200).json(formattedProducts);
+  } catch (error) {
+    return next(errorHandler(400, "A aparut o eroare la gasirea anunturilor"));
+  }
+};

@@ -4,6 +4,7 @@ import {
   getAllProducts,
   getProductById,
   getRecommendedProducts,
+  getUserProducts,
   pagination,
 } from "../controllers/product.controller";
 import { verifyToken } from "../middleware/verifyUser";
@@ -15,10 +16,12 @@ const upload = multer({ storage: storage });
 const router: Router = express.Router();
 router.get("/", getAllProducts);
 router.post("/", verifyToken, upload.array("images", 10), createProduct);
-router.get("/:id", getProductById);
+router.get("/my-products", verifyToken, getUserProducts);
 
 router.get("/recommended/:subcategoryId/:productId", getRecommendedProducts);
 
 router.get("/pagination", pagination);
+
+router.get("/:id", getProductById);
 
 export default router;

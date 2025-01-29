@@ -8,47 +8,37 @@ import { signInFailure, signInStart, signInSuccess } from "../redux/slices/userS
 export default function PrivateRoute() {
   const { isAuthenticated } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
-
-  // Stare locală pentru a urmări procesul de încărcare
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (isAuthenticated) {
-        setLoading(false); // Evităm apelul API dacă utilizatorul este deja autentificat
-        return;
-      }
       try {
         dispatch(signInStart());
         const res = await axios.get("/api/auth/checkAuth");
+
         if (res.data.isAuthenticated) {
           dispatch(signInSuccess(res.data.user));
+        } else {
+          dispatch(signInFailure());
         }
-        // if (!res.data.isAuthenticated) {
-        //   // dispatch(signInFailure());
-        //   // console.log("Nu e autentificat");
-        // }
-        dispatch(signInFailure());
       } catch (error) {
-        setLoading(false);
         const errorMessage =
           axios.isAxiosError(error) && error.response
             ? error.response.data.message || "A apărut o eroare la autentificare."
             : "A apărut o eroare neprevăzută.";
         console.log(errorMessage);
         dispatch(signInFailure(errorMessage));
-      } 
-      finally {
+      } finally {
         setLoading(false);
       }
     };
 
     checkAuth();
-  }, [dispatch, isAuthenticated]);
+  }, [dispatch]);
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  return isAuthenticated ? <Outlet/> : <Navigate to="/signin" />;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/signin" />;
 }
