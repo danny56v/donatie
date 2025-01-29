@@ -2,6 +2,8 @@ import mongoose, { model, Schema } from "mongoose";
 
 export interface IUser {
   _id: mongoose.Types.ObjectId;
+  firstName: string;
+  lastName: string;
   googleId?: string;
   username?: string;
   email: string;
@@ -12,6 +14,8 @@ export interface IUser {
 
 const userSchema = new Schema<IUser>(
   {
+    firstName: { type: String, required: true, unique: false },
+    lastName: {type: String, required: true, unique: false},
     googleId: { type: String, required: false },
     username: { type: String, required: true, unique: true, index: true },
     email: { type: String, required: true, unique: true, index: true },
