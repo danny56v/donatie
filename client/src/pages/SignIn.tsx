@@ -4,7 +4,7 @@ import { signInFailure, signInStart, signInSuccess } from "../redux/slices/userS
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../redux/store";
 import axios from "axios";
-import { ErrorMessage, Field, FieldGroup, Fieldset, Label, Legend } from "../components/catalyst/fieldset";
+import { ErrorMessage, Field, FieldGroup, Fieldset, Label } from "../components/catalyst/fieldset";
 import { Heading } from "../components/catalyst/heading";
 import { Text, TextLink } from "../components/catalyst/text";
 import { Input } from "../components/catalyst/input";
@@ -102,16 +102,13 @@ export default function SignIn() {
                 {loading ? "Loading..." : "Autenficare"}
               </Button>
               <div className="text-center flex justify-center space-x-4 ">
-               <Text>Nu ai un cont? </Text>
+                <Text>Nu ai un cont? </Text>
                 <TextLink href="/signup" className="text-center">
                   Înregistrare
                 </TextLink>
               </div>
               {/* <Button type="submit" color="light" className="w-full">Înregistrare</Button> */}
-              <Field>
-
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-              </Field>
+              <Field>{error && <ErrorMessage>{error}</ErrorMessage>}</Field>
             </FieldGroup>
           </Fieldset>
         </div>

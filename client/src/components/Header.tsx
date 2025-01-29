@@ -19,9 +19,9 @@ import {
   ShieldCheckIcon,
   UserIcon,
 } from "@heroicons/react/16/solid";
-import { InboxIcon, MagnifyingGlassIcon, UserCircleIcon } from "@heroicons/react/20/solid";
+import { InboxIcon, UserCircleIcon } from "@heroicons/react/20/solid";
 import ThemeToggle from "./ThemeToggle";
-import { data, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { RootState } from "../redux/store";
@@ -41,7 +41,7 @@ import { Button } from "./catalyst/button";
 // }
 const navItems = [
   { label: "Acasă", url: "/" },
-  { label: "Events", url: "/events" },
+  { label: "Anunțurile mele", url: "/my-products" },
   { label: "Orders", url: "/orders" },
   { label: "Broadcasts", url: "/broadcasts" },
   { label: "Settings", url: "/settings" },
