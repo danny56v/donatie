@@ -4,20 +4,26 @@ import AllProducts from "./pages/AllProducts";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import PrivateRoute from "./components/PrivateRoute";
-import CreateProduct from "./pages/CreateProduct";
 import ViewProduct from "./pages/ViewProduct";
 import { MyProducts } from "./pages/MyProducts";
+import { EditProduct } from "./pages/EditProduct";
+import { CreateProduct } from "./pages/CreateProduct";
+import { RestrictedSignsRoute } from "./components/RestrictedSignsRoute";
 
 const App: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<AllProducts />} />
-        <Route path="signin" element={<SignIn />} />
-        <Route path="signup" element={<SignUp />} />
         <Route path="product/:id" element={<ViewProduct />} />
+
+        <Route path="/" element={<RestrictedSignsRoute />}>
+          <Route path="signin" element={<SignIn />} />
+          <Route path="signup" element={<SignUp />} />
+        </Route>
         <Route path="/" element={<PrivateRoute />}>
-          <Route path="product" element={<CreateProduct />} />
+          <Route path="product/new" element={<CreateProduct />} />
+          <Route path="product/edit/:id" element={<EditProduct />} />
           <Route path="my-products" element={<MyProducts />} />
         </Route>
 
