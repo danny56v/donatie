@@ -11,7 +11,7 @@ export interface IProduct extends Document {
   phone: number;
   category: mongoose.Types.ObjectId;
   subcategory: mongoose.Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
+  owner: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,7 +28,7 @@ const productSchema = new Schema<IProduct>(
     phone: { type: Number, required: true },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     subcategory: { type: Schema.Types.ObjectId, ref: "Subcategory", required: true },
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
 );

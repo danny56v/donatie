@@ -16,9 +16,12 @@ export const getAllProducts: RequestHandler = async (req, res, next) => {
     const startIndex = (pageNumber - 1) * limitNumber;
 
     const products = await Product.find().skip(startIndex).limit(limitNumber).sort({ createdAt: -1 });
-
+console.log(products)
     const totalProducts = await Product.countDocuments();
-
+// if (products.length === 0) {
+//    res.status(200).json()
+//    return 
+// }
     res.status(200).json({
       data: products,
       pagination: {
@@ -36,7 +39,7 @@ export const getProductById: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
     const product = await Product.findById(id)
-      .populate("userId", "username")
+      .populate("owner", "username")
       .populate("category")
       .populate("subcategory");
     if (!product) {
@@ -44,6 +47,7 @@ export const getProductById: RequestHandler = async (req, res, next) => {
     }
     res.status(200).json(product);
   } catch (error) {
+    console.log(error)
     return next(errorHandler(400, "A apărut o eroare la preluarea produsului."));
   }
 };
@@ -96,7 +100,7 @@ export const createProduct: RequestHandler = async (req, res, next) => {
       address,
       phone,
       imageUrls,
-      userId: req.user.id,
+      owner: req.user.id,
     });
     const savedProduct = await newProduct.save();
     await Subcategory.findByIdAndUpdate(subcategory, {
@@ -106,6 +110,22 @@ export const createProduct: RequestHandler = async (req, res, next) => {
   } catch (error) {
     // console.log(error)
     return next(errorHandler(400, "A apărut o eroare la postarea produsului."));
+  }
+};
+
+export const updateProduct: RequestHandler = async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return next(errorHandler(400, "Produsul nu a fost gasit."));
+    }
+    if (product.owner.toString() !== req.user.id) {
+      return next(errorHandler(400, "Nu ai permisiunea sa editezi acest produs"));
+    }
+    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    return next(errorHandler(400, "A apărut o eroare la editarea produsului."));
   }
 };
 
@@ -165,14 +185,15 @@ export const getUserProducts: RequestHandler = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
-    const products = await Product.find({ userId: userId })
-    .populate("category", "name")
-    .populate("subcategory", "name")
-    .select("name description imageUrls condition category subcategory createdAt updatedAt")
+    const products = await Product.find({ owner: userId })
+      .populate("category", "name")
+      .populate("subcategory", "name")
+      .populate("owner")
+      .select("name description imageUrls condition category subcategory createdAt updatedAt owner");
     // .lean(); // ✅ `.lean()` trebuie să vină după `.populate()`
-    
+
     const formattedProducts = products.map((product) => ({
-      _id:product._id,
+      _id: product._id,
       name: product.name,
       description: product.description,
       image: product.imageUrls?.[0] || null, // Prima imagine sau null dacă nu există
@@ -180,6 +201,7 @@ export const getUserProducts: RequestHandler = async (req, res, next) => {
       subcategory: product.subcategory,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
+      owner: product.owner,
     }));
 
     res.status(200).json(formattedProducts);

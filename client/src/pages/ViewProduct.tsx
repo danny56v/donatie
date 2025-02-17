@@ -18,7 +18,7 @@ interface IProduct {
   category: { _id: string; name: string };
   subcategory: { _id: string, name: string };
   imageUrls: string[];
-  userId: string;
+  owner: string;
 }
 
 export default function ViewProduct() {
@@ -39,7 +39,9 @@ export default function ViewProduct() {
     const fetchProduct = async () => {
       try {
         setLoading(true);
+        console.log(id)
         const res = await axios.get(`/api/products/${id}`);
+        console.log(res)
         setProduct(res.data);
       } catch (error) {
         const errorMessage =

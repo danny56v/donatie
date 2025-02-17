@@ -5,10 +5,15 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import { truncateText } from "../utils/truncateText";
+import { RootState } from "../redux/store";
+import { useSelector } from "react-redux";
 
 export const ProductQuickView = (props) => {
+
+  const user = useSelector((state: RootState) => state.user.currentUser);
+
   const navigate = useNavigate();
-  const { _id, name, description, condition, category, subcategory, createdAt, index, image, updatedAt } =
+  const { _id, name, description, condition, category, subcategory, createdAt, index, image, updatedAt,owner } =
     props.product;
 
   return (
@@ -58,7 +63,14 @@ export const ProductQuickView = (props) => {
               </DropdownButton>
               <DropdownMenu anchor="bottom end">
                 <DropdownItem onClick={() => navigate(`/product/${_id}`)}>View</DropdownItem>
-                <DropdownItem>Edit</DropdownItem>
+                <DropdownItem>
+                  {user &&
+                    user._id === owner._id && ( // ✅ Afișăm butonul doar dacă utilizatorul este proprietarul
+                      <Link to={`/product/edit/${_id}`} className="edit-button">
+                         Editează
+                      </Link>
+                    )}
+                </DropdownItem>
                 <DropdownItem>Delete</DropdownItem>
               </DropdownMenu>
             </Dropdown>

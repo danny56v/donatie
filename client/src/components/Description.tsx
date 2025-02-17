@@ -18,7 +18,7 @@ export default function Description({ product }) {
         <DescriptionDetails>{product.category.name}, {product.subcategory.name}</DescriptionDetails>
 
         <DescriptionTerm>Utilizator</DescriptionTerm>
-        <DescriptionDetails>{product.userId.username}</DescriptionDetails>
+        <DescriptionDetails>{product.owner.username}</DescriptionDetails>
         
         <DescriptionTerm>Contacte</DescriptionTerm>
         <DescriptionDetails>{product.phone}</DescriptionDetails>

@@ -6,6 +6,7 @@ import {
   getRecommendedProducts,
   getUserProducts,
   pagination,
+  updateProduct,
 } from "../controllers/product.controller";
 import { verifyToken } from "../middleware/verifyUser";
 import multer from "multer";
@@ -23,5 +24,7 @@ router.get("/recommended/:subcategoryId/:productId", getRecommendedProducts);
 router.get("/pagination", pagination);
 
 router.get("/:id", getProductById);
+router.put("/:id", verifyToken, updateProduct);
+
 
 export default router;

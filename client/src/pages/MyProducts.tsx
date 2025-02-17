@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Divider } from "../components/catalyst/divider";
 import { Heading } from "../components/catalyst/heading";
 import axios from "axios";
 import { ProductQuickView } from "../components/ProductQuickView";

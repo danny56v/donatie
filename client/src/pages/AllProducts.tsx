@@ -17,6 +17,9 @@ export default function AllProducts() {
       try {
         setLoading(true);
         const res = await axios.get(`/api/products?page=${currentPage}&limit=20`); // Trimitem pagina curentă și limita
+        if(res.data.data.length === 0){
+          setError('Nu s-au gasit produse')
+        }
         setProducts(res.data.data); // Setăm produsele din răspuns
         setTotalPages(res.data.pagination.totalPages); // Total pagini din răspuns
         setLoading(false);
@@ -38,7 +41,7 @@ export default function AllProducts() {
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className="text-zinc-800 dark:text-zinc-300">{error}</div>;
   }
 
   return (

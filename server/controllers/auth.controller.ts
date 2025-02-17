@@ -27,6 +27,19 @@ export const checkAuth: RequestHandler = (req, res) => {
   }
 };
 
+export const restrictAuthRoutes: RequestHandler = (req, res, next) => {
+  try {
+    if (req.cookies?.access_token) {
+      next(errorHandler(403, "Esti deja autentificat"));
+      return
+    }
+    next()
+  } catch (error) {
+    return next(errorHandler(500, "Eroare la verificarea autentificării."));
+  }
+
+};
+
 export const signup: RequestHandler<{}, {}, SignUpRequestBody> = async (req, res, next) => {
   const { email, username, password, firstName, lastName } = req.body;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
