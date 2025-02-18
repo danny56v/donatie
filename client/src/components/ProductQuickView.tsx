@@ -24,7 +24,7 @@ export const ProductQuickView = (props) => {
           <div className="flex flex-col md:flex-row gap-6 py-6 ">
             <div className="w-32 shrink-0">
               <Link to={`/product/${_id}`} aria-hidden="true">
-                <img className="aspect-[3/2] rounded-lg shadow" src={image} alt="" />
+                <img className="aspect-[3/2] object-cover rounded-lg shadow" src={image} alt="" />
               </Link>
             </div>
             <div className="space-y-1.5">

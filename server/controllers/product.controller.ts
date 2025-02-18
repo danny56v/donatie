@@ -16,12 +16,12 @@ export const getAllProducts: RequestHandler = async (req, res, next) => {
     const startIndex = (pageNumber - 1) * limitNumber;
 
     const products = await Product.find().skip(startIndex).limit(limitNumber).sort({ createdAt: -1 });
-console.log(products)
+    console.log(products);
     const totalProducts = await Product.countDocuments();
-// if (products.length === 0) {
-//    res.status(200).json()
-//    return 
-// }
+    // if (products.length === 0) {
+    //    res.status(200).json()
+    //    return
+    // }
     res.status(200).json({
       data: products,
       pagination: {
@@ -47,7 +47,7 @@ export const getProductById: RequestHandler = async (req, res, next) => {
     }
     res.status(200).json(product);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return next(errorHandler(400, "A apărut o eroare la preluarea produsului."));
   }
 };
@@ -186,6 +186,7 @@ export const getUserProducts: RequestHandler = async (req, res, next) => {
     const userId = req.user.id;
 
     const products = await Product.find({ owner: userId })
+      .sort({ createdAt: -1 })
       .populate("category", "name")
       .populate("subcategory", "name")
       .populate("owner")
