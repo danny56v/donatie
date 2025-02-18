@@ -44,9 +44,9 @@ export default function SignIn() {
       //   dispatch(signInFailure(res.data.message));
       //   return;
       // }
-      const { user } = res.data;
-
+      const  user  = res.data.user;
       dispatch(signInSuccess(user));
+
       navigate("/");
     } catch (error) {
       const errorMessage =
