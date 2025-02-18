@@ -165,6 +165,11 @@ const Header: React.FC = () => {
                 <NavbarItem href="/inbox" aria-label="Inbox">
                   <InboxIcon />
                 </NavbarItem>
+                {location.pathname !== "/product/new" && (
+                  <NavbarItem href="/product/new" aria-label="Create Post">
+                    <PlusIcon />
+                  </NavbarItem>
+                )}
                 <Dropdown>
                   <DropdownButton as={NavbarItem}>
                     <UserCircleIcon />
