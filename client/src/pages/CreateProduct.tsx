@@ -1,8 +1,12 @@
+import { Divider } from "../components/catalyst/divider";
+import { Heading } from "../components/catalyst/heading";
 import { ProductForm } from "../components/ProductForm";
 
 export const CreateProduct = () => {
   return (
     <>
+    <Heading>Adaugă anunț</Heading>
+      <Divider className="my-6 dark:bg-slate-400"></Divider>
       <ProductForm />
     </>
   );

@@ -192,8 +192,7 @@ console.log("FormData:", [...submissionData.entries()]);
 
   return (
     <>
-      <Heading>Adaugă anunț</Heading>
-      <Divider className="my-6 dark:bg-slate-400"></Divider>
+      
       <form method="POST" onSubmit={handleSubmit}>
         <Fieldset className="flex flex-col md:flex-row md:flex-wrap gap-6">
           <div className="flex-1">

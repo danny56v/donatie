@@ -8,7 +8,13 @@ import { Heading } from "../components/catalyst/heading";
 import { Divider } from "../components/catalyst/divider";
 import Description from "../components/Description";
 import ProductCard from "../components/ProductCard";
-import { TextLink } from "../components/catalyst/text";
+import { Text, TextLink } from "../components/catalyst/text";
+import DeleteProductDialog from "../components/DeleteProductDialog";
+import { Button } from "../components/catalyst/button";
+import { PencilIcon } from "@heroicons/react/24/outline";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+import { TrashIcon } from "@heroicons/react/20/solid";
 
 interface IProduct {
   _id: string;
@@ -16,13 +22,15 @@ interface IProduct {
   description: string;
   condition: string;
   category: { _id: string; name: string };
-  subcategory: { _id: string, name: string };
+  subcategory: { _id: string; name: string };
   imageUrls: string[];
-  owner: string;
+  owner: { _id: string; username: string };
 }
 
 export default function ViewProduct() {
   const navigate = useNavigate();
+
+  const user = useSelector((state: RootState) => state.user.currentUser);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,15 +41,17 @@ export default function ViewProduct() {
   const [product, setProduct] = useState<IProduct | null>(null);
   const [recommendedProducts, setRecommendedProducts] = useState<IProduct[]>([]);
 
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        console.log(id)
+        console.log(id);
         const res = await axios.get(`/api/products/${id}`);
-        console.log(res)
+        console.log(res);
         setProduct(res.data);
       } catch (error) {
         const errorMessage =
@@ -56,15 +66,13 @@ export default function ViewProduct() {
     fetchProduct();
   }, [id]);
 
-
   useEffect(() => {
     if (product && product.subcategory && product.subcategory._id) {
       const fetchRecommendedProducts = async () => {
         try {
-          const res = await axios.get(`/api/products/recommended/${product.subcategory._id}/${product._id}`,);
+          const res = await axios.get(`/api/products/recommended/${product.subcategory._id}/${product._id}`);
 
           setRecommendedProducts(res.data);
-
         } catch (error) {
           const errorMessage =
             axios.isAxiosError(error) && error.response
@@ -79,6 +87,10 @@ export default function ViewProduct() {
 
   const handleClick = (id: string) => {
     navigate(`/product/${id}`);
+  };
+
+  const handleDeleteProduct = () => {
+    setIsDeleteDialogOpen(true);
   };
 
   const handleImageClick = (image: string, index: number) => {
@@ -126,19 +138,31 @@ export default function ViewProduct() {
           </TabGroup>
         </div>
         <div className="flex-1">
-          <Description product={product} />
+          {user && user.id === product.owner._id && (
+            <div className="flex-1 flex justify-end items-center ">
+              <Button plain onClick={() => navigate(`/product/edit/${product._id}`)}>
+                <PencilIcon></PencilIcon>Modifică
+              </Button>
+              /
+              <Button plain onClick={handleDeleteProduct}>
+                <TrashIcon></TrashIcon>
+                Șterge
+              </Button>
+            </div>
+          )}
 
+          <Description product={product} />
         </div>
       </div>
       <div className="mt-10">
         <div className="flex flex-row justify-between">
-        <Heading className="mb-5">Produse Similare</Heading>
-        <TextLink href='#'>Vezi mai multe</TextLink>
+          <Heading className="mb-5">Produse Similare</Heading>
+          <TextLink href="#">Vezi mai multe</TextLink>
         </div>
         {recommendedProducts.length > 0 ? (
           <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8">
             {recommendedProducts.map((product: IProduct) => (
-              <ProductCard key={product._id} product={product} height={32}/>
+              <ProductCard key={product._id} product={product} height={32} />
             ))}
           </div>
         ) : (
@@ -154,6 +178,9 @@ export default function ViewProduct() {
           currentImageIndex={currentImageIndex}
           setCurrentImageIndex={setCurrentImageIndex}
         />
+      )}
+      {isDeleteDialogOpen && (
+        <DeleteProductDialog productId={product._id} onClose={() => setIsDeleteDialogOpen(false)} />
       )}
     </>
   );

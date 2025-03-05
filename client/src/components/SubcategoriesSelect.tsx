@@ -34,7 +34,7 @@ const errorCategories = useSelector((state:RootState) => state.categories.error)
         } else {
           dispatch(getSubcategoriesSuccess([]));
         }
-      }, [selectedCategory, dispatch, placeholderSubcategory, setSelectedSubcategory]);
+      }, [selectedCategory, dispatch, placeholderSubcategory, setSelectedSubcategory, savedSubcategory]);
     
   return (
      <Field className="pt-4 flex-1">

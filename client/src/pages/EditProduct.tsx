@@ -4,6 +4,8 @@ import axios from "axios";
 import { useSelector } from "react-redux"; // Dacă folosești Redux pentru autentificare
 import { ProductForm } from "../components/ProductForm";
 import { RootState } from "../redux/store";
+import { Heading } from "../components/catalyst/heading";
+import { Divider } from "../components/catalyst/divider";
 
 export const EditProduct = () => {
   const { id } = useParams();
@@ -40,5 +42,12 @@ export const EditProduct = () => {
     return <p>Se încarcă...</p>;
   }
 
-  return isOwner ? <ProductForm /> : null;
+  return isOwner ? (
+    <>
+      <Heading>Modifică anunț</Heading>
+      <Divider className="my-6 dark:bg-slate-400"></Divider>
+      
+      <ProductForm />
+    </>
+  ) : null;
 };
