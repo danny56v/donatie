@@ -1,7 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IUser } from "../../interfaces/Interfaces";
+// import { IUser } from "../../interfaces/Interfaces";
 
-
+interface IUser {
+  id: string;
+  googleId?: string;
+  username?: string;
+  email: string;
+}
 interface UserState {
   currentUser: IUser | null;
   isAuthenticated: boolean;
@@ -28,7 +33,7 @@ const userSlice = createSlice({
     signInSuccess: (state, action: PayloadAction<IUser>) => {
       state.loading = false;
       state.currentUser = action.payload;
-      console.log(state.currentUser)
+      // console.log(state.currentUser)
       // state.token = action.payload.token;
       state.isAuthenticated = true;
       state.error = null;

@@ -1,6 +1,7 @@
 import express, { Router } from "express";
 import {
   createProduct,
+  deleteProduct,
   getAllProducts,
   getProductById,
   getRecommendedProducts,
@@ -23,8 +24,10 @@ router.get("/recommended/:subcategoryId/:productId", getRecommendedProducts);
 
 router.get("/pagination", pagination);
 
+router.delete("/:id", verifyToken, deleteProduct);
 router.get("/:id", getProductById);
-router.put("/:id", verifyToken, updateProduct);
+router.put("/:id", verifyToken,  upload.array("images", 10),updateProduct);
+
 
 
 export default router;

@@ -7,14 +7,20 @@ import { PencilIcon } from "@heroicons/react/24/outline";
 import { truncateText } from "../utils/truncateText";
 import { RootState } from "../redux/store";
 import { useSelector } from "react-redux";
+import DeleteProductDialog from "./DeleteProductDialog";
+import { useState } from "react";
 
 export const ProductQuickView = (props) => {
-
   const user = useSelector((state: RootState) => state.user.currentUser);
 
   const navigate = useNavigate();
-  const { _id, name, description, condition, category, subcategory, createdAt, index, image, updatedAt,owner } =
+  const { _id, name, description, condition, category, subcategory, createdAt, index, image, updatedAt, owner } =
     props.product;
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const handleDeleteProduct = () => {
+    setIsDeleteDialogOpen(true);
+  };
 
   return (
     <>
@@ -62,21 +68,26 @@ export const ProductQuickView = (props) => {
                 <EllipsisVerticalIcon />
               </DropdownButton>
               <DropdownMenu anchor="bottom end">
-                <DropdownItem onClick={() => navigate(`/product/${_id}`)}>View</DropdownItem>
-                <DropdownItem>
-                  {user &&
-                    user._id === owner._id && ( // ✅ Afișăm butonul doar dacă utilizatorul este proprietarul
-                      <Link to={`/product/edit/${_id}`} className="edit-button">
-                         Editează
-                      </Link>
-                    )}
-                </DropdownItem>
-                <DropdownItem>Delete</DropdownItem>
+                <DropdownItem onClick={() => navigate(`/product/${_id}`)}>Vizualizează</DropdownItem>
+
+                {user && user.id === owner._id && (
+                  <DropdownItem onClick={() => navigate(`/product/edit/${_id}`)}>
+                    Modifică
+                    {/* <Link to={`/product/edit/${_id}`} className="edit-button">
+                      Edit
+                    </Link> */}
+                  </DropdownItem>
+                )}
+
+                {user && user.id === owner._id && <DropdownItem onClick={handleDeleteProduct}>Șterge</DropdownItem>}
               </DropdownMenu>
             </Dropdown>
           </div>
         </div>
       </li>
+      {isDeleteDialogOpen && (
+        <DeleteProductDialog productId={_id} onClose={() => setIsDeleteDialogOpen(false)} />
+      )}
     </>
   );
 };

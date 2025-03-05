@@ -205,7 +205,7 @@ const Header: React.FC = () => {
                 {location.pathname === "/signin" || location.pathname === "/signup" ? (
                   <></>
                 ) : (
-                  <Button onClick={handleSignIn}>Autentificare</Button>
+                  <Button onClick={handleSignIn} >Autentificare</Button>
                 )}
               </>
             )}
@@ -216,7 +216,7 @@ const Header: React.FC = () => {
         <Sidebar>
           <SidebarHeader>
             <Dropdown>
-              <DropdownButton as={SidebarItem} className="lg:mb-2.5">
+              <DropdownButton as={SidebarItem} className="lg:mb-2.5 ">
                 <Avatar src="/tailwind-logo.svg" />
                 <SidebarLabel>Tailwind Labs</SidebarLabel>
                 <ChevronDownIcon />

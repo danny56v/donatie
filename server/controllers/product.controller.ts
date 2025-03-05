@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { Product } from "../models/Product";
 import { errorHandler } from "../utils/error";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3 } from "../utils/s3Config";
 import sharp from "sharp";
 import { Subcategory } from "../models/Subcategory";
@@ -16,7 +16,7 @@ export const getAllProducts: RequestHandler = async (req, res, next) => {
     const startIndex = (pageNumber - 1) * limitNumber;
 
     const products = await Product.find().skip(startIndex).limit(limitNumber).sort({ createdAt: -1 });
-    console.log(products);
+    // console.log(products);
     const totalProducts = await Product.countDocuments();
     // if (products.length === 0) {
     //    res.status(200).json()
@@ -53,7 +53,7 @@ export const getProductById: RequestHandler = async (req, res, next) => {
 };
 
 export const createProduct: RequestHandler = async (req, res, next) => {
-  // console.log(req.files);
+  console.log(req.files);
   try {
     const files = req.files as Express.Multer.File[];
 
@@ -115,17 +115,94 @@ export const createProduct: RequestHandler = async (req, res, next) => {
 
 export const updateProduct: RequestHandler = async (req, res, next) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const { id } = req.params;
+    const product = await Product.findById(id);
+
     if (!product) {
-      return next(errorHandler(400, "Produsul nu a fost gasit."));
+      return next(errorHandler(404, "Produsul nu a fost găsit."));
     }
+
     if (product.owner.toString() !== req.user.id) {
-      return next(errorHandler(400, "Nu ai permisiunea sa editezi acest produs"));
+      return next(errorHandler(403, "Nu ai permisiunea să editezi acest produs."));
     }
-    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+    const { name, description, condition, category, subcategory, region, city, address, phone } = req.body;
+
+    // ✅ 1. Normalizează `remainingImages`
+    let remainingImages = req.body.remainingImages;
+    if (!Array.isArray(remainingImages)) {
+      remainingImages = remainingImages ? [remainingImages] : []; // Convertim în array dacă e string sau undefined
+    }
+    console.log("📌 Imagini păstrate:", remainingImages);
+
+    // ✅ 2. Identifică imaginile de șters
+    const imagesToDelete = product.imageUrls.filter((img) => !remainingImages.includes(img));
+    console.log("🗑️ Imagini de șters:", imagesToDelete);
+
+    // ✅ 3. Șterge imaginile din S3
+    for (const imageUrl of imagesToDelete) {
+      const imageKey = imageUrl.split("/").pop();
+      if (imageKey) {
+        console.log("❌ Ștergere din S3:", imageKey);
+        const deleteParams = {
+          Bucket: process.env.BUCKET_NAME,
+          Key: imageKey,
+        };
+        await s3.send(new DeleteObjectCommand(deleteParams));
+      }
+    }
+
+    // ✅ 4. Încărcă noile imagini dacă sunt trimise
+    const files = req.files as Express.Multer.File[] | undefined;
+    let newImageUrls: string[] = [];
+
+    if (files && files.length > 0) {
+      for (const file of files) {
+        const resizedImageBuffer = await sharp(file.buffer)
+          .resize({ width: 1980, height: 1200, fit: "inside" })
+          .toBuffer();
+
+        const newImageKey = `${Date.now()}-${file.originalname}`;
+        const uploadParams = {
+          Bucket: process.env.BUCKET_NAME,
+          Key: newImageKey,
+          Body: resizedImageBuffer,
+          ContentType: file.mimetype,
+        };
+
+        await s3.send(new PutObjectCommand(uploadParams));
+
+        const newImageUrl = `https://${process.env.BUCKET_NAME}.s3.${process.env.BUCKET_REGION}.amazonaws.com/${newImageKey}`;
+        newImageUrls.push(newImageUrl);
+      }
+    }
+
+    // ✅ 5. Combină imaginile rămase cu cele noi și elimină duplicate
+    const updatedImageUrls = [...new Set([...remainingImages, ...newImageUrls])];
+    console.log("🖼️ Imagini finale salvate:", updatedImageUrls);
+
+    // ✅ 6. Actualizează produsul în baza de date
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      {
+        name,
+        description,
+        condition,
+        category,
+        subcategory,
+        region,
+        city,
+        address,
+        phone,
+        imageUrls: updatedImageUrls,
+      },
+      { new: true }
+    );
+
     res.status(200).json(updatedProduct);
   } catch (error) {
-    return next(errorHandler(400, "A apărut o eroare la editarea produsului."));
+    console.error("❌ Eroare la actualizare:", error);
+    return next(errorHandler(400, "A apărut o eroare la actualizarea produsului."));
   }
 };
 
@@ -208,5 +285,50 @@ export const getUserProducts: RequestHandler = async (req, res, next) => {
     res.status(200).json(formattedProducts);
   } catch (error) {
     return next(errorHandler(400, "A aparut o eroare la gasirea anunturilor"));
+  }
+};
+
+export const deleteProduct: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return next(errorHandler(404, "Produsul nu a fost găsit."));
+    }
+
+    if (product.owner.toString() !== req.user.id) {
+      return next(errorHandler(403, "Nu ai permisiunea să ștergi acest produs."));
+    }
+
+    // **Ștergere imagini din S3**
+    for (const imageUrl of product.imageUrls) {
+      const imageKey = imageUrl.split("/").pop();
+      if (imageKey) {
+        try {
+          await s3.send(
+            new DeleteObjectCommand({
+              Bucket: process.env.BUCKET_NAME,
+              Key: imageKey,
+            })
+          );
+        } catch (err) {
+          console.error(`❌ Eroare la ștergerea imaginii din S3: ${imageKey}`, err);
+        }
+      }
+    }
+
+    // **Șterge produsul din baza de date**
+    await Product.findByIdAndDelete(id);
+
+    // **Șterge produsul din subcategorie**
+    await Subcategory.findByIdAndUpdate(product.subcategory, {
+      $pull: { products: id },
+    });
+
+    res.status(200).json({ message: "Produs șters cu succes." });
+  } catch (error) {
+    console.error("❌ Eroare la ștergerea produsului:", error);
+    return next(errorHandler(400, "A apărut o eroare la ștergerea produsului."));
   }
 };

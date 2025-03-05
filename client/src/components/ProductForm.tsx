@@ -1,50 +1,27 @@
-import { PhotoIcon } from "@heroicons/react/24/solid";
+import { Heading } from "./catalyst/heading";
+import { Divider } from "./catalyst/divider";
+import { Field, Fieldset, Label } from "./catalyst/fieldset";
+import { Input } from "./catalyst/input";
+import { Textarea } from "./catalyst/textarea";
 import { useEffect, useMemo, useState } from "react";
+import { CategoriesSelect } from "./CategoriesSelect";
+import { SubcategoriesSelect } from "./SubcategoriesSelect";
+import { Radio, RadioField, RadioGroup } from "./catalyst/radio";
+import { FileInputAndPreview } from "./FileInputAndPreview";
+import { Button } from "./catalyst/button";
 import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getCategoriesFailure,
-  getCategoriesStart,
-  getCategoriesSuccess,
-  getSubcategoriesFailure,
-  getSubcategoriesStart,
-  getSubcategoriesSuccess,
-} from "../redux/slices/categoriesSlice";
-import { RootState } from "../redux/store";
-import { Heading } from "../components/catalyst/heading";
-import { Divider } from "../components/catalyst/divider";
-import { ErrorMessage, Field, Fieldset, Label } from "../components/catalyst/fieldset";
-import { Input } from "../components/catalyst/input";
-import { Textarea } from "../components/catalyst/textarea";
-import { Select } from "../components/catalyst/select";
-import { Radio, RadioField, RadioGroup } from "../components/catalyst/radio";
-import { Text } from "../components/catalyst/text";
-import { Button } from "../components/catalyst/button";
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function ProductForm() {
+export const ProductForm = () => {
   const { id } = useParams();
-
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const categories = useSelector((state: RootState) => state.categories.categories);
-  const subcategories = useSelector((state: RootState) => state.categories.subcategories);
-  const user = useSelector((state: RootState) => state.user.currentUser);
-
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const errorCategories = useSelector((state: RootState) => state.categories.error);
-  const loadingCategories = useSelector((state: RootState) => state.categories.loading);
-
   const placeholderCategory = useMemo(() => ({ _id: null, name: "Alege o optiune", subcategories: null }), []);
   const placeholderSubcategory = useMemo(() => ({ _id: null, name: "Alege o optiune" }), []);
-
   const [selectedCategory, setSelectedCategory] = useState(placeholderCategory);
   const [selectedSubcategory, setSelectedSubcategory] = useState(placeholderSubcategory);
-
   const [filesWithPreview, setFilesWithPreview] = useState<{ file: File; preview: string }[]>([]);
-
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -57,116 +34,51 @@ export default function ProductForm() {
     subcategory: selectedSubcategory._id,
   });
 
-  // Object.entries(formData).forEach(([key, value]) => {
-  //   submissionData.append(key, value);
-  // });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-
-    const newFiles = files.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-    }));
-
-    const combinedFiles = [...filesWithPreview, ...newFiles];
-
-    if (combinedFiles.length > 10) {
-      setError("Maxim 10 imagini");
-
-      const excessFiles = combinedFiles.slice(10);
-      excessFiles.forEach(({ preview }) => URL.revokeObjectURL(preview));
-
-      setFilesWithPreview(combinedFiles.slice(0, 10));
-    } else {
-      setError(null);
-      setFilesWithPreview(combinedFiles);
-    }
-  };
-
-  const handleRemoveFile = (index: number) => {
-    const updatedFiles = filesWithPreview.filter((_, i) => i !== index);
-    // Revoke URL pentru prevenirea pierderii memoriei
-    URL.revokeObjectURL(filesWithPreview[index].preview);
-    setFilesWithPreview(updatedFiles);
-  };
-
-  useEffect(() => {
-    return () => {
-      filesWithPreview.forEach(({ preview }) => URL.revokeObjectURL(preview));
-    };
-  }, [filesWithPreview]);
-
   useEffect(() => {
     if (id) {
       const fetchProduct = async () => {
         try {
           setLoading(true);
-          const res = await axios.get(`/api/product/${id}`);
-          
-          if (user && user._id !== res.data.owner) {
-            alert("Nu ai permisiunea să editezi acest produs!");
-            navigate('/'); // Redirecționează utilizatorul dacă nu este proprietarul
-          } else {
-            setFormData(res.data);
+          const response = await axios.get(`/api/products/${id}`);
+          const product = response.data;
+          console.log("Imagini primite:", product.imageUrls)
+          setFormData({
+            name: product.name,
+            description: product.description,
+            region: product.region,
+            city: product.city,
+            address: product.address,
+            phone: product.phone,
+            condition: product.condition,
+            category: product.category._id,
+            subcategory: product.subcategory._id,
+          });
+          setSelectedCategory(product.category);
+          setSelectedSubcategory(product.subcategory);
+          console.log(selectedCategory, selectedSubcategory);
+          if (product.imageUrls) {
+            setFilesWithPreview(product.imageUrls.map((img: string) => ({ file: null, preview: img })));
           }
-  
+
           setLoading(false);
         } catch (error) {
-          setError("Produsul nu a fost găsit sau nu ai acces.");
+          const errorMessage =
+            axios.isAxiosError(error) && error.response
+              ? error.response.data.message || "A apărut o eroare la autentificare."
+              : "A apărut o eroare neprevăzută.";
+          console.log(errorMessage);
           setLoading(false);
-          navigate('/');
+          setError(errorMessage);
         }
       };
-  
       fetchProduct();
     }
-  }, [id, user, navigate]);
-  
-  useEffect(() => {
-    const getCategories = async () => {
-      dispatch(getCategoriesStart());
-      try {
-        const categories = await axios.get("/api/categories");
-        // console.log(categories);
-        dispatch(getCategoriesSuccess(categories.data));
-      } catch (error) {
-        const errorMessage =
-          axios.isAxiosError(error) && error.response
-            ? error.response.data.message || "A apărut o eroare la identificarea categoriilor."
-            : "A apărut o eroare neprevăzută.";
-        console.log(errorMessage);
-        dispatch(getCategoriesFailure(errorMessage));
-      }
-    };
-    getCategories();
-  }, [dispatch]);
+  }, [id]);
 
-  useEffect(() => {
-    if (selectedCategory._id) {
-      dispatch(getSubcategoriesStart());
-      const getSubcategories = async () => {
-        try {
-          const res = await axios.get(`/api/categories/${selectedCategory._id}/subcategories`);
-          dispatch(getSubcategoriesSuccess(res.data));
-          setSelectedSubcategory(placeholderSubcategory);
-        } catch (error) {
-          const messageError = error instanceof Error ? error.message : "A aparut o eroare";
-          dispatch(getSubcategoriesFailure(messageError));
-        }
-      };
-
-      getSubcategories();
-    } else {
-      dispatch(getSubcategoriesSuccess([]));
-    }
-  }, [selectedCategory, dispatch, placeholderSubcategory]);
-
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
   useEffect(() => {
     setFormData((prevData) => ({
       ...prevData,
@@ -215,25 +127,49 @@ export default function ProductForm() {
       submissionData.append("condition", formData.condition || "");
 
       filesWithPreview.forEach(({ file }) => {
-        submissionData.append("images", file);
+        if (file) {
+          submissionData.append("images", file);
+        }
       });
+      
+      const remainingImages = filesWithPreview
+      .filter((fileObj) => fileObj.file === null) // Doar imaginile deja existente
+      .map((fileObj) => fileObj.preview);
+    
+    console.log("Imagini păstrate:", remainingImages);
+    
+    remainingImages.forEach((image) => submissionData.append("remainingImages", image));
+    
 
       console.log([...submissionData.entries()]);
 
-      await axios.post("/api/products", submissionData);
-      alert("Sa creat cu succes");
+      if (id) {
+        console.log("Actualizare produs ID:", id);
+console.log("FormData:", [...submissionData.entries()]);
+
+        // Update produs
+        await axios.put(`/api/products/${id}`, submissionData);
+        alert("Produs actualizat cu succes!");
+      } else {
+        // Creare produs nou
+        await axios.post("/api/products", submissionData);
+        alert("Produs creat cu succes!");
+      }
       setLoading(false);
-      setError(null);
+
       navigate("/my-products");
     } catch (error) {
-      const errorMessage =
-        axios.isAxiosError(error) && error.response
-          ? error.response.data.message || "A apărut o eroare la autentificare."
-          : "A apărut o eroare neprevăzută.";
-      console.log(errorMessage);
-      setLoading(false);
-      setError(errorMessage);
-    }
+        setLoading(false);
+      
+        if (axios.isAxiosError(error)) {
+          console.log("Eroare Axios:", error.response?.data);
+          setError(error.response?.data.message || "A apărut o eroare la actualizarea produsului.");
+        } else {
+          console.log("Eroare necunoscută:", error);
+          setError("A apărut o eroare neprevăzută.");
+        }
+      }
+      
   };
 
   const handleCancel = () => {
@@ -251,6 +187,7 @@ export default function ProductForm() {
     setSelectedCategory(placeholderCategory);
     setSelectedSubcategory(placeholderSubcategory);
     setFilesWithPreview([]);
+    navigate("/my-products");
   };
 
   return (
@@ -269,52 +206,18 @@ export default function ProductForm() {
               <Textarea name="description" onChange={handleChange} value={formData.description} rows={3}></Textarea>
             </Field>
             <div className="flex flex-col lg:flex-row lg:flex-wrap gap-6">
-              <Field className="pt-4 flex-1 ">
-                <Label>Categorie</Label>
-                <Select
-                  name="category"
-                  value={selectedCategory._id || ""}
-                  invalid={!!errorCategories}
-                  onChange={(e) => {
-                    const selected = categories.find((cat) => cat._id === e.target.value) || placeholderCategory;
-                    setSelectedCategory(selected);
-                  }}
-                >
-                  <option value="" disabled>
-                    Alege o categorie
-                  </option>
-                  {categories.map((category) => (
-                    <option key={category._id} value={category._id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </Select>
-                {errorCategories && <ErrorMessage>{errorCategories}</ErrorMessage>}
-              </Field>
-              <Field className="pt-4 flex-1">
-                <Label>Subcategorie</Label>
-                <Select
-                  name="subcategory"
-                  value={selectedSubcategory._id || ""}
-                  invalid={!!errorCategories}
-                  onChange={(e) => {
-                    const selected =
-                      subcategories.find((subcat) => subcat._id === e.target.value) || placeholderSubcategory;
-                    setSelectedSubcategory(selected);
-                  }}
-                  disabled={!selectedCategory._id}
-                >
-                  <option value="" disabled>
-                    Alege o subcategorie
-                  </option>
-                  {subcategories.map((subcategory) => (
-                    <option key={subcategory._id} value={subcategory._id}>
-                      {subcategory.name}
-                    </option>
-                  ))}
-                </Select>
-                {errorCategories && <ErrorMessage>{errorCategories}</ErrorMessage>}
-              </Field>
+              <CategoriesSelect
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                placeholderCategory={placeholderCategory}
+              />
+              <SubcategoriesSelect
+                selectedSubcategory={selectedSubcategory}
+                setSelectedSubcategory={setSelectedSubcategory}
+                selectedCategory={selectedCategory}
+                placeholderSubcategory={placeholderSubcategory}
+                savedSubcategory={formData.subcategory}
+              />
             </div>
             <Field className="pt-4">
               <Label className="mb-2">Stare</Label>
@@ -346,7 +249,6 @@ export default function ProductForm() {
               </Field>
             </div>
           </div>
-
           <div className="flex-1">
             <div className="flex flex-col lg:flex-row gap-4">
               <Field className="basis-2/3">
@@ -358,47 +260,11 @@ export default function ProductForm() {
                 <Input name="phone" type="number" value={formData.phone} onChange={handleChange}></Input>
               </Field>
             </div>
-            <Field className="max-w-lg mx-auto mt-6">
-              <label
-                htmlFor="file-upload"
-                className="flex flex-col items-center justify-center w-full h-40 rounded-lg border-2 border-dashed border-zinc-300 bg-zinv-50 dark:bg-zinc-800 dark:border-zinc-500 hover:dark:border-zinc-200 hover:dark:bg-zinc-700 hover:border-indigo-600 hover:bg-indigo-50 cursor-pointer"
-              >
-                <PhotoIcon className="h-12 w-12 text-gray-400" />
-                <Text className="mt-2">
-                  Drag and drop or <span className="text-indigo-600 font-medium cursor-pointer">browse</span> to upload
-                </Text>
-                <Text className="text-xs text-gray-400">PNG, JPG, GIF up to 10MB</Text>
-                <input
-                  id="file-upload"
-                  type="file"
-                  name="file-upload"
-                  className="sr-only"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => handleFileChange(e)}
-                />
-              </label>
-            </Field>
-            <Field className=" grid grid-cols-5 md:grid-cols-3 lg:grid-cols-5">
-              {filesWithPreview.map(({ preview }, index) => (
-                <div key={index} className="relative group m-2">
-                  <img src={preview} alt={`Preview ${index}`} className="h-24 w-24 rounded-md object-cover shadow-md" />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveFile(index)}
-                    // onClick={() => {
-                    //   const newImagePreview = imagePreview.filter((_, i) => i !== index);
-                    //   const newSelectedFiles = selectedFiles.filter((_, i) => i !== index);
-                    //   setImagePreview(newImagePreview);
-                    //   setSelectedFiles(newSelectedFiles);
-                    // }}
-                    className="absolute top-1 right-1 hidden h-6 w-6 bg-red-600 text-white rounded-full group-hover:flex items-center justify-center"
-                  >
-                    &times;
-                  </button>
-                </div>
-              ))}
-            </Field>
+            <FileInputAndPreview
+              filesWithPreview={filesWithPreview}
+              setFilesWithPreview={setFilesWithPreview}
+              setError={setError}
+            />
             <Field className={`flex justify-end gap-4 mt-6 ${loading && "cursor-not-allowed"}`}>
               <Button
                 outline
@@ -411,7 +277,7 @@ export default function ProductForm() {
               </Button>
 
               <Button disabled={loading} type="submit">
-                {loading ? "Loading..." : "Publică"}
+                {loading ? "Loading..." : id ? "Actualizează" : "Publică"}
               </Button>
             </Field>
           </div>
@@ -419,4 +285,4 @@ export default function ProductForm() {
       </form>
     </>
   );
-}
+};
