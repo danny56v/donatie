@@ -9,6 +9,7 @@ import { MyProducts } from "./pages/MyProducts";
 import { EditProduct } from "./pages/EditProduct";
 import { CreateProduct } from "./pages/CreateProduct";
 import { RestrictedSignsRoute } from "./components/RestrictedSignsRoute";
+import { Profile } from "./pages/Profile";
 
 const App: React.FC = () => {
   return (
@@ -23,6 +24,7 @@ const App: React.FC = () => {
         </Route>
         <Route path="/" element={<PrivateRoute />}>
           <Route path="product/new" element={<CreateProduct />} />
+          <Route path="my-profile" element={<Profile />} />
           <Route path="product/edit/:id" element={<EditProduct />} />
           <Route path="my-products" element={<MyProducts />} />
         </Route>
