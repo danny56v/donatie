@@ -31,13 +31,12 @@ export const restrictAuthRoutes: RequestHandler = (req, res, next) => {
   try {
     if (req.cookies?.access_token) {
       next(errorHandler(403, "Esti deja autentificat"));
-      return
+      return;
     }
-    next()
+    next();
   } catch (error) {
     return next(errorHandler(500, "Eroare la verificarea autentificării."));
   }
-
 };
 
 export const signup: RequestHandler<{}, {}, SignUpRequestBody> = async (req, res, next) => {
@@ -99,7 +98,7 @@ export const signin: RequestHandler<{}, {}, SignInRequestBody> = async (req, res
     const { password: hashedPassword, ...rest } = validUser;
     const expiryDate = new Date(Date.now() + 60 * 60 * 24 * 100);
     res
-      .cookie("access_token", token, { httpOnly: true, secure: true, expires: expiryDate })
+      .cookie("access_token", token, { httpOnly: true, secure: false, expires: expiryDate })
       .status(200)
       .json({ user: rest, token });
   } catch (error) {
@@ -111,7 +110,7 @@ export const signin: RequestHandler<{}, {}, SignInRequestBody> = async (req, res
 export const signout: RequestHandler = (req, res) => {
   res.cookie("access_token", "", {
     httpOnly: true,
-    secure: true, // Asigură-te că aplicația rulează pe HTTPS
+    secure: false, // Asigură-te că aplicația rulează pe HTTPS
     sameSite: "strict", // Limitează accesul din contexte de la terți
     expires: new Date(0), // Expiră imediat cookie-ul pentru sign-out
   });

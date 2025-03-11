@@ -12,6 +12,9 @@ export interface IProduct extends Document {
   category: mongoose.Types.ObjectId;
   subcategory: mongoose.Types.ObjectId;
   owner: mongoose.Types.ObjectId;
+  reservedBy: mongoose.Types.ObjectId | null;
+  status: "disponibil" | "rezervat" | "finalizat";
+  donationConfirmedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,6 +32,9 @@ const productSchema = new Schema<IProduct>(
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     subcategory: { type: Schema.Types.ObjectId, ref: "Subcategory", required: true },
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    reservedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
+    status: { type: String, enum: ["disponibil", "rezervat", "finalizat"], default: "disponibil" },
+    donationConfirmedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

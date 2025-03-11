@@ -3,18 +3,20 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import ImageModal from "../components/ImageModal";
-import Message from "../components/Message";
 import { Heading } from "../components/catalyst/heading";
 import { Divider } from "../components/catalyst/divider";
 import Description from "../components/Description";
 import ProductCard from "../components/ProductCard";
-import { Text, TextLink } from "../components/catalyst/text";
+import { Strong, TextLink } from "../components/catalyst/text";
 import DeleteProductDialog from "../components/DeleteProductDialog";
 import { Button } from "../components/catalyst/button";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { TrashIcon } from "@heroicons/react/20/solid";
+import { Badge } from "../components/catalyst/badge";
+import { ReserverButton } from "../components/ReserverButton";
+import { ConfirmDonation } from "../components/ConfirmDonation";
 
 interface IProduct {
   _id: string;
@@ -24,9 +26,35 @@ interface IProduct {
   category: { _id: string; name: string };
   subcategory: { _id: string; name: string };
   imageUrls: string[];
+  status: "disponibil" | "rezervat" | "finalizat";
   owner: { _id: string; username: string };
-}
+  reservedBy: { _id: string; username: string } | null;
+  donationConfirmedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  region: string;
+  city: string;
+  address: string;
+  phone: number;
 
+  // export interface IProduct extends Document {
+  //   owner: { _id: string; username: string };
+  //     name: { type: String, required: true },
+  //     description: { type: String, required: true },
+  //     imageUrls: [{ type: String, required: false }],
+  //     condition: { type: String, required: true },
+  //     region: { type: String, required: true },
+  //     city: { type: String, required: true },
+  //     address: { type: String, required: true },
+  //     phone: { type: Number, required: true },
+  //     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+  //     subcategory: { type: Schema.Types.ObjectId, ref: "Subcategory", required: true },
+  //     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  //     reservedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
+  //     status: { type: String, enum: ["disponibil", "rezervat", "finalizat"], default: "disponibil" },
+  //     donationConfirmedAt: { type: Date, default: null },
+  // }
+}
 export default function ViewProduct() {
   const navigate = useNavigate();
 
@@ -43,20 +71,22 @@ export default function ViewProduct() {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  const [triggerUpdate, setTriggerUpdate] = useState(false);
+
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        console.log(id);
+        // console.log(id);
         const res = await axios.get(`/api/products/${id}`);
-        console.log(res);
+        // console.log(res);
         setProduct(res.data);
       } catch (error) {
         const errorMessage =
           axios.isAxiosError(error) && error.response
-            ? error.response.data.message || "A apărut o eroare la autentificare."
+            ? error.response.data.message || "A apărut o eroare la gasirea produsului."
             : "A apărut o eroare neprevăzută.";
         setError(errorMessage);
       } finally {
@@ -64,7 +94,9 @@ export default function ViewProduct() {
       }
     };
     fetchProduct();
-  }, [id]);
+  }, [id, triggerUpdate]);
+
+  const refreshProduct = () => setTriggerUpdate((prev) => !prev);
 
   useEffect(() => {
     if (product && product.subcategory && product.subcategory._id) {
@@ -102,9 +134,18 @@ export default function ViewProduct() {
   if (error) return <div className="text-red-500">{error}</div>;
   if (!product) return <div>Product not found</div>;
 
+  console.log(product);
   return (
     <>
-      <Heading>Produs: {product.name}</Heading>
+      <div className="flex flex-row gap-4">
+        <Heading>
+          Produs: {product.name}{" "}
+          {product.donationConfirmedAt && <span className="text-green-600 ml-2">(Produs Donat)</span>}
+        </Heading>
+
+        {product.status === "disponibil" && <Badge color="green">Disponibil</Badge>}
+        {product.status === "rezervat" && <Badge color="rose">Rezervat</Badge>}
+      </div>
       <Divider className="my-6 dark:bg-slate-400"></Divider>
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 max-w-lg lg:w-0.5 mx-auto">
@@ -137,9 +178,14 @@ export default function ViewProduct() {
             </div>
           </TabGroup>
         </div>
-        <div className="flex-1">
+        <div className="flex-1 flex-row space-y-6">
+          <Description product={product} />
+          {product.donationConfirmedAt && <Heading className="text-green-600 ml-2">Produsul este deja Donat</Heading>}
+          {user?.id !== product.owner._id && (
+            <ReserverButton product={product} setProduct={setProduct} refreshProduct={refreshProduct} />
+          )}
           {user && user.id === product.owner._id && (
-            <div className="flex-1 flex justify-end items-center ">
+            <div className="flex-1 flex justify-start items-center ">
               <Button plain onClick={() => navigate(`/product/edit/${product._id}`)}>
                 <PencilIcon></PencilIcon>Modifică
               </Button>
@@ -150,8 +196,14 @@ export default function ViewProduct() {
               </Button>
             </div>
           )}
-
-          <Description product={product} />
+          {user && user.id === product.owner._id && product.status === "rezervat" && (
+            <ConfirmDonation
+              reservedByUsername={product.reservedBy.username}
+              refreshProduct={refreshProduct}
+              productId={product._id}
+              setError={setError}
+            />
+          )}
         </div>
       </div>
       <div className="mt-10">

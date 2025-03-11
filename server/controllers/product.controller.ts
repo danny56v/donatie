@@ -39,9 +39,10 @@ export const getProductById: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
     const product = await Product.findById(id)
-      .populate("owner")
+      .populate("owner", "username")
       .populate("category")
-      .populate("subcategory");
+      .populate("subcategory")
+      .populate("reservedBy", "username");
     if (!product) {
       return next(errorHandler(404, "Produsul nu a fost gasit."));
     }

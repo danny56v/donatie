@@ -48,6 +48,7 @@ export const EditProduct = () => {
       <Divider className="my-6 dark:bg-slate-400"></Divider>
       
       <ProductForm />
+
     </>
   ) : null;
 };
