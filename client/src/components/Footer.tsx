@@ -1,11 +1,11 @@
 const navigation = {
     main: [
-      { name: 'About', href: '#' },
-      { name: 'Blog', href: '#' },
-      { name: 'Jobs', href: '#' },
-      { name: 'Press', href: '#' },
-      { name: 'Accessibility', href: '#' },
-      { name: 'Partners', href: '#' },
+      { name: 'Acasă', href: '/' },
+      { name: 'Anunțurile mele', href: '/my-products' },
+      { name: 'Donații', href: '/donations' },
+      // { name: 'Press', href: '#' },
+      // { name: 'Accessibility', href: '#' },
+      // { name: 'Partners', href: '#' },
     ],
     social: [
       {
@@ -94,7 +94,7 @@ const navigation = {
             ))}
           </div>
           <p className="mt-10 text-center text-xs leading-5 text-zinc-500">
-            &copy; 2025 Your Company, Inc. All rights reserved.
+            &copy; 2025 All rights reserved.
           </p>
         </div>
       </footer>

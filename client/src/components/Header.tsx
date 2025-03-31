@@ -42,9 +42,9 @@ import { Button } from "./catalyst/button";
 const navItems = [
   { label: "Acasă", url: "/" },
   { label: "Anunțurile mele", url: "/my-products" },
-  { label: "Orders", url: "/orders" },
-  { label: "Broadcasts", url: "/broadcasts" },
-  { label: "Settings", url: "/settings" },
+  { label: "Donații", url: "/donations" },
+  // { label: "Broadcasts", url: "/broadcasts" },
+  // { label: "Settings", url: "/settings" },
 ];
 
 function TeamDropdownMenu() {
@@ -136,16 +136,17 @@ const Header: React.FC = () => {
     <StackedLayout
       navbar={
         <Navbar className="">
-          <Dropdown>
+          {/* <Dropdown>
             <DropdownButton as={NavbarItem} className="max-lg:hidden">
               <Avatar src="/tailwind-logo.svg" />
               <NavbarLabel>Tailwind Labs</NavbarLabel>
               <ChevronDownIcon />
             </DropdownButton>
             <TeamDropdownMenu />
-          </Dropdown>
+          </Dropdown> */}
           <NavbarDivider className="max-lg:hidden" />
-          <NavbarSection className="max-lg:hidden">
+          <NavbarSection className=" flex flex-row w-full justify-center max-lg:hidden ">
+            <div className="flex justify-center pl-36"></div>
             {navItems.map(({ label, url }) => (
               <NavbarItem key={label} href={url}>
                 {label}

@@ -72,7 +72,7 @@ export default function Pages({ currentPage, totalPages, onChange }: PagesProps)
           currentPage === 1 ? "text-zinc-400 cursor-not-allowed" : "text-zinc-900 hover:bg-zinc-200"
         )}
       >
-        ← Previous
+        ←
       </button>
       {renderPageNumbers()}
       <button
@@ -83,7 +83,7 @@ export default function Pages({ currentPage, totalPages, onChange }: PagesProps)
           currentPage === totalPages ? "text-zinc-400 cursor-not-allowed" : "text-zinc-900 hover:bg-zinc-200"
         )}
       >
-        Next →
+        →
       </button>
     </div>
   );
