@@ -5,23 +5,42 @@ import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3 } from "../utils/s3Config";
 import sharp from "sharp";
 import { Subcategory } from "../models/Subcategory";
+import mongoose from "mongoose";
+import { Category } from "../models/Category";
+
 
 export const getAllProducts: RequestHandler = async (req, res, next) => {
   try {
-    const { page = "1", limit = "10" } = req.query;
+    const { page = "1", limit = "10", categories, subcategories } = req.query;
 
     const pageNumber = parseInt(page as string, 10);
     const limitNumber = parseInt(limit as string, 10);
-
     const startIndex = (pageNumber - 1) * limitNumber;
 
-    const products = await Product.find().skip(startIndex).limit(limitNumber).sort({ createdAt: -1 });
-    // console.log(products);
-    const totalProducts = await Product.countDocuments();
-    // if (products.length === 0) {
-    //    res.status(200).json()
-    //    return
-    // }
+    const filter: any = {};
+
+    const categoryFilter = categories ? { category: { $in: categories.toString().split(',') } } : {};
+    const subcategoryFilter = subcategories ? { subcategory: { $in: subcategories.toString().split(',') } } : {};
+
+    // Aplicăm un filtru care include produse din categoriile sau subcategoriile specificate
+    if (categories || subcategories) {
+      filter.$or = [];
+      if (categories) {
+        filter.$or.push(categoryFilter);
+      }
+      if (subcategories) {
+        filter.$or.push(subcategoryFilter);
+      }
+    }
+
+    // console.log(filter)
+    const products = await Product.find(filter)
+                                  .skip(startIndex)
+                                  .limit(limitNumber)
+                                  .sort({ createdAt: -1 });
+
+    const totalProducts = await Product.countDocuments(filter);
+
     res.status(200).json({
       data: products,
       pagination: {
@@ -34,6 +53,37 @@ export const getAllProducts: RequestHandler = async (req, res, next) => {
     return next(errorHandler(400, "A aparut o eroare la paginare"));
   }
 };
+
+
+
+// export const getAllProducts: RequestHandler = async (req, res, next) => {
+//   try {
+//     const { page = "1", limit = "10" } = req.query;
+
+//     const pageNumber = parseInt(page as string, 10);
+//     const limitNumber = parseInt(limit as string, 10);
+
+//     const startIndex = (pageNumber - 1) * limitNumber;
+
+//     const products = await Product.find().skip(startIndex).limit(limitNumber).sort({ createdAt: -1 });
+//     // console.log(products);
+//     const totalProducts = await Product.countDocuments();
+//     // if (products.length === 0) {
+//     //    res.status(200).json()
+//     //    return
+//     // }
+//     res.status(200).json({
+//       data: products,
+//       pagination: {
+//         totalProducts,
+//         currentPage: pageNumber,
+//         totalPages: Math.ceil(totalProducts / limitNumber),
+//       },
+//     });
+//   } catch (error) {
+//     return next(errorHandler(400, "A aparut o eroare la paginare"));
+//   }
+// };
 
 export const getProductById: RequestHandler = async (req, res, next) => {
   try {
