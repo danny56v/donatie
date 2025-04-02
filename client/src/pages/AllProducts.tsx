@@ -4,6 +4,8 @@ import { Heading } from "../components/catalyst/heading";
 import { Divider } from "../components/catalyst/divider";
 import ProductCard from "../components/ProductCard";
 import Pages from "../components/Pages";
+import { Strong, Text } from "../components/catalyst/text";
+import {CategoryFilter} from "../components/CategoryFilter";
 
 export default function AllProducts() {
   const [products, setProducts] = useState([]);
@@ -12,16 +14,31 @@ export default function AllProducts() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
+  
+
   useEffect(() => {
     const getProducts = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`/api/products?page=${currentPage}&limit=20`); // Trimitem pagina curentă și limita
-        if(res.data.data.length === 0){
-          setError('Nu s-au gasit produse')
+        const res = await axios.get(`/api/products`, {
+          params: {
+            page: currentPage,
+            limit: 20,
+            categories: selectedCategories.join(","),
+            subcategories: selectedSubcategories.join(","),
+          },
+        });
+    
+        if (res.data.data.length === 0) {
+          setError("Nu s-au găsit produse");
+        } else {
+          setError(null);
         }
-        setProducts(res.data.data); // Setăm produsele din răspuns
-        setTotalPages(res.data.pagination.totalPages); // Total pagini din răspuns
+    
+        setProducts(res.data.data);
+        setTotalPages(res.data.pagination.totalPages);
         setLoading(false);
       } catch (error) {
         const errorMessage =
@@ -32,9 +49,15 @@ export default function AllProducts() {
         setError(errorMessage);
       }
     };
+    
 
-    getProducts();
-  }, [currentPage]); // Fetch-ul depinde de pagina curentă
+    
+      const delayFetch = setTimeout(() => {
+        getProducts();
+      }, 1500); // delay 500ms
+    
+      return () => clearTimeout(delayFetch);
+  },[currentPage, selectedCategories, selectedSubcategories]); // Fetch-ul depinde de pagina curentă
 
   if (loading) {
     return <div>Loading...</div>;
@@ -46,8 +69,19 @@ export default function AllProducts() {
 
   return (
     <>
-      <Heading>Products</Heading>
+      <Heading>Produse</Heading>
       <Divider className="my-6 dark:bg-slate-400" />
+      <div className="flex flex-row sm:flex-nowrap gap-6 ">
+        <div className="mt-20">
+          <Strong >Categorii</Strong>
+          <CategoryFilter
+  selectedCategories={selectedCategories}
+  setSelectedCategories={setSelectedCategories}
+  selectedSubcategories={selectedSubcategories}
+  setSelectedSubcategories={setSelectedSubcategories}
+/>
+
+        </div>
       <div className="bg-white dark:bg-zinc-900">
         <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-6xl lg:px-8">
           {/* <h2 className="">Products</h2> */}
@@ -64,6 +98,8 @@ export default function AllProducts() {
           onChange={(page: SetStateAction<number>) => setCurrentPage(page)} // Actualizează pagina curentă
         />
       </div>
+      </div>
+   
     </>
   );
 }

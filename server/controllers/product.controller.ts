@@ -5,8 +5,7 @@ import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3 } from "../utils/s3Config";
 import sharp from "sharp";
 import { Subcategory } from "../models/Subcategory";
-import mongoose from "mongoose";
-import { Category } from "../models/Category";
+
 
 
 export const getAllProducts: RequestHandler = async (req, res, next) => {
