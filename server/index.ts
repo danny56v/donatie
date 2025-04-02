@@ -6,8 +6,10 @@ import authRouter from "./routes/auth.route";
 import userRouter from "./routes/user.route";
 import productRouter from "./routes/product.route";
 import categoryRouter from "./routes/category.route";
+import adminRouter from "./routes/admin.route";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
+
 
 dotenv.config();
 
@@ -33,6 +35,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRouter);
+app.use("/api/admin", adminRouter);
 
 interface ErrorWithStatusCode extends Error {
   statusCode?: number;
