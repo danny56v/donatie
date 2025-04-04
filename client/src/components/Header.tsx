@@ -77,6 +77,7 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated);
+  const user = useSelector((state: RootState) => state.user.currentUser);
   // const loading = useSelector((state: RootState) => state.user.loading);
   const [loading, setLoading] = useState(true);
 
@@ -152,6 +153,11 @@ const Header: React.FC = () => {
                 {label}
               </NavbarItem>
             ))}
+            {/* {user?.isAdmin && (
+              <NavbarItem href="/admin/users">
+                Administrare useri
+              </NavbarItem>
+            )} */}
           </NavbarSection>
           <NavbarSpacer />
           <NavbarSection>
@@ -184,6 +190,18 @@ const Header: React.FC = () => {
                       <Cog8ToothIcon />
                       <DropdownLabel>Settings</DropdownLabel>
                     </DropdownItem>
+                    {user?.isAdmin && (
+                      <>
+                        <DropdownItem href="/admin/users">
+                          <UserIcon />
+                          <DropdownLabel>Administrare utilizatori</DropdownLabel>
+                        </DropdownItem>
+                        <DropdownItem href="/admin/products">
+                          <UserIcon />
+                          <DropdownLabel>Administrare produse</DropdownLabel>
+                        </DropdownItem>
+                      </>
+                    )}
                     <DropdownDivider />
                     <DropdownItem href="/privacy-policy">
                       <ShieldCheckIcon />
@@ -206,7 +224,7 @@ const Header: React.FC = () => {
                 {location.pathname === "/signin" || location.pathname === "/signup" ? (
                   <></>
                 ) : (
-                  <Button onClick={handleSignIn} >Autentificare</Button>
+                  <Button onClick={handleSignIn}>Autentificare</Button>
                 )}
               </>
             )}

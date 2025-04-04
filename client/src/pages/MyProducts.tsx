@@ -12,7 +12,7 @@ export const MyProducts = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("/api/products/my-products");
+        const res = await axios.get("/api/products/user-products");
         setProducts(res.data);
       } catch (error) {
         const errorMessage =

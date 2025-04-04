@@ -6,7 +6,7 @@ import { getAllUsers, deleteUser, getAllProducts, deleteProduct, getStatistics }
 const router: Router = express.Router();
 
 router.get("/allusers", verifyToken, isAdmin, getAllUsers);
-router.delete("/user", verifyToken, isAdmin, deleteUser);
+router.delete("/user/:id", verifyToken, isAdmin, deleteUser);
 router.get("/allproducts", verifyToken, isAdmin, getAllProducts);
 router.delete("/product", verifyToken, isAdmin, deleteProduct);
 

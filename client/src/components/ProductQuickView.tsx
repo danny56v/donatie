@@ -9,13 +9,28 @@ import { RootState } from "../redux/store";
 import { useSelector } from "react-redux";
 import DeleteProductDialog from "./DeleteProductDialog";
 import { useState } from "react";
+import { Badge } from "./catalyst/badge";
+import { Strong, TextLink } from "./catalyst/text";
 
 export const ProductQuickView = (props) => {
   const user = useSelector((state: RootState) => state.user.currentUser);
+  const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated);
 
   const navigate = useNavigate();
-  const { _id, name, description, condition, category, subcategory, createdAt, index, image, updatedAt, owner } =
-    props.product;
+  const {
+    _id,
+    name,
+    description,
+    condition,
+    status,
+    category,
+    subcategory,
+    createdAt,
+    index,
+    image,
+    updatedAt,
+    owner,
+  } = props.product;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleDeleteProduct = () => {
@@ -24,7 +39,7 @@ export const ProductQuickView = (props) => {
 
   return (
     <>
-      <li>
+      <li className="list-none">
         <Divider soft={index > 0} />
         <div className="flex items-center justify-between">
           <div className="flex flex-col md:flex-row gap-6 py-6 ">
@@ -56,6 +71,11 @@ export const ProductQuickView = (props) => {
                       minute: "2-digit",
                     })
                   : "N/A"}
+                {isAuthenticated && user?.isAdmin && (
+                  <span className="text-xs/6 text-zinc-600">
+                    by: <TextLink href={`/admin/user/${owner._id}`}>{owner?.username}</TextLink>
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -63,6 +83,12 @@ export const ProductQuickView = (props) => {
             {/* <Badge className="max-sm:hidden" color={event.status === "On Sale" ? "lime" : "zinc"}>
               {event.status}
             </Badge> */}
+            <Badge
+              className="max-sm:hidden"
+              color={status === "disponibil" ? "green" : status === "rezervat" ? "yellow" : "red"}
+            >
+              {status}
+            </Badge>
             <Dropdown>
               <DropdownButton plain aria-label="More options">
                 <EllipsisVerticalIcon />
@@ -70,24 +96,18 @@ export const ProductQuickView = (props) => {
               <DropdownMenu anchor="bottom end">
                 <DropdownItem onClick={() => navigate(`/product/${_id}`)}>Vizualizează</DropdownItem>
 
-                {user && user.id === owner._id && (
-                  <DropdownItem onClick={() => navigate(`/product/edit/${_id}`)}>
-                    Modifică
-                    {/* <Link to={`/product/edit/${_id}`} className="edit-button">
-                      Edit
-                    </Link> */}
-                  </DropdownItem>
+                {user && (user.id === owner._id || user.isAdmin) && (
+                  <DropdownItem onClick={() => navigate(`/product/edit/${_id}`)}>Modifică</DropdownItem>
                 )}
-
-                {user && user.id === owner._id && <DropdownItem onClick={handleDeleteProduct}>Șterge</DropdownItem>}
+                {user && (user.id === owner._id || user.isAdmin) && (
+                  <DropdownItem onClick={handleDeleteProduct}>Șterge</DropdownItem>
+                )}
               </DropdownMenu>
             </Dropdown>
           </div>
         </div>
       </li>
-      {isDeleteDialogOpen && (
-        <DeleteProductDialog productId={_id} onClose={() => setIsDeleteDialogOpen(false)} />
-      )}
+      {isDeleteDialogOpen && <DeleteProductDialog productId={_id} onClose={() => setIsDeleteDialogOpen(false)} />}
     </>
   );
 };

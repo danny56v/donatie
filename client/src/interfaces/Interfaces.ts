@@ -5,13 +5,13 @@ export interface IUser {
   email: string;
   password?: string;
 }
-interface ICategory {
+export interface ICategory {
   _id: string;
   name: string;
   subcategory: ISubcategory;
 }
 
-interface ISubcategory {
+export interface ISubcategory {
   _id: string;
   name: string;
 }

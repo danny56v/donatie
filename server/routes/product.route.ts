@@ -8,6 +8,7 @@ import {
   getUserProducts,
   pagination,
   updateProduct,
+  userProductsPagination,
 } from "../controllers/product.controller";
 import { verifyToken } from "../middleware/verifyUser";
 import multer from "multer";
@@ -24,7 +25,7 @@ router.get("/", getAllProducts);
 router.post("/", verifyToken, upload.array("images", 10), createProduct);
 
 // Get User Products
-router.get("/my-products", verifyToken, getUserProducts);
+router.get("/user-products", verifyToken, getUserProducts);
 
 // Get Recommended Products
 router.get("/recommended/:subcategoryId/:productId", getRecommendedProducts);
@@ -40,6 +41,9 @@ router.put("/:id/cancel", verifyToken, cancelRezervation);
 
 // Pagination
 router.get("/pagination", pagination);
+
+// User Products Pagination
+router.get("/user-products/:userId/pagination", verifyToken, userProductsPagination);
 
 // Delete Product
 router.delete("/:id", verifyToken, deleteProduct);

@@ -5,8 +5,7 @@ import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { s3 } from "../utils/s3Config";
 import sharp from "sharp";
 import { Subcategory } from "../models/Subcategory";
-
-
+import User from "../models/User";
 
 export const getAllProducts: RequestHandler = async (req, res, next) => {
   try {
@@ -18,8 +17,8 @@ export const getAllProducts: RequestHandler = async (req, res, next) => {
 
     const filter: any = {};
 
-    const categoryFilter = categories ? { category: { $in: categories.toString().split(',') } } : {};
-    const subcategoryFilter = subcategories ? { subcategory: { $in: subcategories.toString().split(',') } } : {};
+    const categoryFilter = categories ? { category: { $in: categories.toString().split(",") } } : {};
+    const subcategoryFilter = subcategories ? { subcategory: { $in: subcategories.toString().split(",") } } : {};
 
     // Aplicăm un filtru care include produse din categoriile sau subcategoriile specificate
     if (categories || subcategories) {
@@ -33,10 +32,7 @@ export const getAllProducts: RequestHandler = async (req, res, next) => {
     }
 
     // console.log(filter)
-    const products = await Product.find(filter)
-                                  .skip(startIndex)
-                                  .limit(limitNumber)
-                                  .sort({ createdAt: -1 });
+    const products = await Product.find(filter).skip(startIndex).limit(limitNumber).sort({ createdAt: -1 });
 
     const totalProducts = await Product.countDocuments(filter);
 
@@ -52,8 +48,6 @@ export const getAllProducts: RequestHandler = async (req, res, next) => {
     return next(errorHandler(400, "A aparut o eroare la paginare"));
   }
 };
-
-
 
 // export const getAllProducts: RequestHandler = async (req, res, next) => {
 //   try {
@@ -156,6 +150,7 @@ export const createProduct: RequestHandler = async (req, res, next) => {
     await Subcategory.findByIdAndUpdate(subcategory, {
       $push: { products: savedProduct._id },
     });
+    await User.findByIdAndUpdate(req.user.id, { $push: { productsId: savedProduct._id } });
     res.status(201).json(savedProduct);
   } catch (error) {
     // console.log(error)
@@ -308,6 +303,43 @@ export const pagination: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const userProductsPagination: RequestHandler = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNumber = parseInt(page as string, 10);
+    const limitNumber = parseInt(limit as string, 10);
+
+    const startIndex = (pageNumber - 1) * limitNumber;
+
+    if (!userId) {
+      return next(errorHandler(400, "User ID is required for pagination."));
+    }
+    const filter = { owner: userId };
+
+    const products = await Product.find(filter)
+      .populate("category")
+      .populate("subcategory")
+      .skip(startIndex)
+      .limit(limitNumber)
+      .sort({ createdAt: -1 });
+
+    const totalProducts = await Product.countDocuments(filter);
+
+    res.status(200).json({
+      products: products,
+      pagination: {
+        totalProducts,
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalProducts / limitNumber),
+      },
+    });
+  } catch (error) {
+    return next(errorHandler(400, "A aparut o eroare la paginare"));
+  }
+};
+
 export const getUserProducts: RequestHandler = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -317,19 +349,20 @@ export const getUserProducts: RequestHandler = async (req, res, next) => {
       .populate("category", "name")
       .populate("subcategory", "name")
       .populate("owner")
-      .select("name description imageUrls condition category subcategory createdAt updatedAt owner");
+      // .select("name description imageUrls  condition category subcategory createdAt updatedAt owner");
     // .lean(); // ✅ `.lean()` trebuie să vină după `.populate()`
 
     const formattedProducts = products.map((product) => ({
       _id: product._id,
       name: product.name,
       description: product.description,
-      image: product.imageUrls?.[0] || null, // Prima imagine sau null dacă nu există
+      image: product.imageUrls?.[0] || null,
       category: product.category,
       subcategory: product.subcategory,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
       owner: product.owner,
+      status: product.status,
     }));
 
     res.status(200).json(formattedProducts);
@@ -347,7 +380,7 @@ export const deleteProduct: RequestHandler = async (req, res, next) => {
       return next(errorHandler(404, "Produsul nu a fost găsit."));
     }
 
-    if (product.owner.toString() !== req.user.id) {
+    if (product.owner.toString() !== req.user.id && !req.user.isAdmin) {
       return next(errorHandler(403, "Nu ai permisiunea să ștergi acest produs."));
     }
 

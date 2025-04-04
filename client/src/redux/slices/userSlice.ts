@@ -6,6 +6,11 @@ interface IUser {
   googleId?: string;
   username?: string;
   email: string;
+  isAdmin: boolean ;
+  productsId: string[];
+  firstName: string;
+  lastName: string;
+  createdAt: string;
 }
 interface UserState {
   currentUser: IUser | null;

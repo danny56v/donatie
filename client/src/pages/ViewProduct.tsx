@@ -37,23 +37,6 @@ interface IProduct {
   address: string;
   phone: number;
 
-  // export interface IProduct extends Document {
-  //   owner: { _id: string; username: string };
-  //     name: { type: String, required: true },
-  //     description: { type: String, required: true },
-  //     imageUrls: [{ type: String, required: false }],
-  //     condition: { type: String, required: true },
-  //     region: { type: String, required: true },
-  //     city: { type: String, required: true },
-  //     address: { type: String, required: true },
-  //     phone: { type: Number, required: true },
-  //     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
-  //     subcategory: { type: Schema.Types.ObjectId, ref: "Subcategory", required: true },
-  //     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  //     reservedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
-  //     status: { type: String, enum: ["disponibil", "rezervat", "finalizat"], default: "disponibil" },
-  //     donationConfirmedAt: { type: Date, default: null },
-  // }
 }
 export default function ViewProduct() {
   const navigate = useNavigate();
