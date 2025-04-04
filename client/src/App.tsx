@@ -14,6 +14,7 @@ import { AdminRoute } from "./components/AdminRoute";
 import { AdminUsers } from "./components/AdminUsers";
 import { UserView } from "./components/UserView";
 import { AdminProducts } from "./components/AdminProducts";
+import OAuthSuccess from "./components/OAuthSuccess";
 
 const App: React.FC = () => {
   return (
@@ -21,7 +22,7 @@ const App: React.FC = () => {
       <Route path="/" element={<Layout />}>
         <Route index element={<AllProducts />} />
         <Route path="product/:id" element={<ViewProduct />} />
-
+        <Route path="/oauth-success" element={<OAuthSuccess />} />
         <Route path="/" element={<RestrictedSignsRoute />}>
           <Route path="signin" element={<SignIn />} />
           <Route path="signup" element={<SignUp />} />
