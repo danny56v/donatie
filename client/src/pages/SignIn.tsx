@@ -44,7 +44,7 @@ export default function SignIn() {
       //   dispatch(signInFailure(res.data.message));
       //   return;
       // }
-      const  user  = res.data.user;
+      const user = res.data.user;
       console.log(user);
       dispatch(signInSuccess(user));
 
@@ -101,6 +101,14 @@ export default function SignIn() {
 
               <Button type="submit" disabled={loading} className="w-full cursor-pointer">
                 {loading ? "Loading..." : "Autenficare"}
+              </Button>
+              <Button
+                type="button"
+                color="light"
+                className="w-full mt-4"
+                onClick={() => (window.location.href = "http://localhost:3000/api/auth/google")}
+              >
+                Autentifică-te cu Google
               </Button>
               <div className="text-center flex justify-center space-x-4 ">
                 <Text>Nu ai un cont? </Text>

@@ -19,6 +19,18 @@ interface SignInRequestBody {
   password: string;
 }
 
+
+export const googleAuth: RequestHandler = (req, res) => {
+    const user = req.user as any;
+
+    const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET!, {
+      expiresIn: "7d",
+    });
+
+    // Redirecționezi frontend-ul cu tokenul în URL
+    res.redirect(`${process.env.CLIENT_URL}/oauth-success?token=${token}`);
+  }
+
 export const checkAuth: RequestHandler = (req, res) => {
   if (req.user) {
     res.status(200).json({ isAuthenticated: true, user: req.user });

@@ -9,8 +9,9 @@ import categoryRouter from "./routes/category.route";
 import adminRouter from "./routes/admin.route";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
-
-
+import passport from "passport";
+import session from "express-session";
+import "./passport/passport-setup";
 dotenv.config();
 
 const app = express();
@@ -37,6 +38,15 @@ app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/admin", adminRouter);
 
+
+app.use(session({
+  secret: process.env.SESSION_SECRET!,
+  resave: false,
+  saveUninitialized: false,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 interface ErrorWithStatusCode extends Error {
   statusCode?: number;
 }
