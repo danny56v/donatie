@@ -116,7 +116,7 @@ const Header: React.FC = () => {
       //   },
       // });
       // const data = await res.json();
-
+      localStorage.removeItem("token");
       dispatch(signOutSuccess());
       navigate("/");
     } catch (error) {
