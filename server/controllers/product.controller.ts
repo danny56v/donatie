@@ -9,30 +9,45 @@ import User from "../models/User";
 
 export const getAllProducts: RequestHandler = async (req, res, next) => {
   try {
-    const { page = "1", limit = "10", categories, subcategories } = req.query;
+    const { page = "1", limit = "10", categories, subcategories, search } = req.query;
 
     const pageNumber = parseInt(page as string, 10);
     const limitNumber = parseInt(limit as string, 10);
     const startIndex = (pageNumber - 1) * limitNumber;
 
+    // Construim filtrul
     const filter: any = {};
 
-    const categoryFilter = categories ? { category: { $in: categories.toString().split(",") } } : {};
-    const subcategoryFilter = subcategories ? { subcategory: { $in: subcategories.toString().split(",") } } : {};
+    const categoryFilter = categories
+      ? { category: { $in: categories.toString().split(",") } }
+      : {};
+    const subcategoryFilter = subcategories
+      ? { subcategory: { $in: subcategories.toString().split(",") } }
+      : {};
 
-    // Aplicăm un filtru care include produse din categoriile sau subcategoriile specificate
     if (categories || subcategories) {
       filter.$or = [];
-      if (categories) {
-        filter.$or.push(categoryFilter);
-      }
-      if (subcategories) {
-        filter.$or.push(subcategoryFilter);
-      }
+      if (categories) filter.$or.push(categoryFilter);
+      if (subcategories) filter.$or.push(subcategoryFilter);
     }
 
-    // console.log(filter)
-    const products = await Product.find(filter).skip(startIndex).limit(limitNumber).sort({ createdAt: -1 });
+    if (search) {
+      filter.$text = { $search: search.toString() };
+    }
+
+    // Proiecția și sortarea pentru căutare cu scor de relevanță
+    const projection: Record<string, any> = search
+      ? { score: { $meta: "textScore" } }
+      : {};
+
+    const sort: Record<string, any> = search
+      ? { score: { $meta: "textScore" } }
+      : { createdAt: -1 };
+
+    const products = await Product.find(filter, projection)
+      .sort(sort)
+      .skip(startIndex)
+      .limit(limitNumber);
 
     const totalProducts = await Product.countDocuments(filter);
 
@@ -45,10 +60,9 @@ export const getAllProducts: RequestHandler = async (req, res, next) => {
       },
     });
   } catch (error) {
-    return next(errorHandler(400, "A aparut o eroare la paginare"));
+    return next(errorHandler(400, "A apărut o eroare la paginare"));
   }
 };
-
 // export const getAllProducts: RequestHandler = async (req, res, next) => {
 //   try {
 //     const { page = "1", limit = "10" } = req.query;
@@ -348,8 +362,8 @@ export const getUserProducts: RequestHandler = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .populate("category", "name")
       .populate("subcategory", "name")
-      .populate("owner")
-      // .select("name description imageUrls  condition category subcategory createdAt updatedAt owner");
+      .populate("owner");
+    // .select("name description imageUrls  condition category subcategory createdAt updatedAt owner");
     // .lean(); // ✅ `.lean()` trebuie să vină după `.populate()`
 
     const formattedProducts = products.map((product) => ({

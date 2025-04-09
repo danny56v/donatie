@@ -4,8 +4,9 @@ import { Heading } from "../components/catalyst/heading";
 import { Divider } from "../components/catalyst/divider";
 import ProductCard from "../components/ProductCard";
 import Pages from "../components/Pages";
-import { Strong, Text } from "../components/catalyst/text";
-import {CategoryFilter} from "../components/CategoryFilter";
+import { Strong } from "../components/catalyst/text";
+import { CategoryFilter } from "../components/CategoryFilter";
+import { SearchBar } from "../components/SearchBar";
 
 export default function AllProducts() {
   const [products, setProducts] = useState([]);
@@ -16,7 +17,8 @@ export default function AllProducts() {
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
-  
+
+  const [searchValue, setSearchValue] = useState<string>("");
 
   useEffect(() => {
     const getProducts = async () => {
@@ -28,15 +30,16 @@ export default function AllProducts() {
             limit: 20,
             categories: selectedCategories.join(","),
             subcategories: selectedSubcategories.join(","),
+            search: searchValue,
           },
         });
-    
+
         if (res.data.data.length === 0) {
           setError("Nu s-au găsit produse");
         } else {
           setError(null);
         }
-    
+
         setProducts(res.data.data);
         setTotalPages(res.data.pagination.totalPages);
         setLoading(false);
@@ -49,15 +52,13 @@ export default function AllProducts() {
         setError(errorMessage);
       }
     };
-    
 
-    
-      const delayFetch = setTimeout(() => {
-        getProducts();
-      }, 1500); // delay 500ms
-    
-      return () => clearTimeout(delayFetch);
-  },[currentPage, selectedCategories, selectedSubcategories]); // Fetch-ul depinde de pagina curentă
+    const delayFetch = setTimeout(() => {
+      getProducts();
+    }, 1500);
+
+    return () => clearTimeout(delayFetch);
+  }, [currentPage, selectedCategories, selectedSubcategories, searchValue]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -69,37 +70,47 @@ export default function AllProducts() {
 
   return (
     <>
-      <Heading>Produse</Heading>
+      <div className="flex flex-col sm:flex-row items-center gap-4 mt-10 mb-4">
+        <div className="sm:basis-1/4 w-full sm:w-auto text-center sm:text-left">
+          <Heading>Produse</Heading>
+        </div>
+
+        <div className="sm:basis-1/2 w-full flex justify-center">
+          <SearchBar searchValue={searchValue} setSearchValue={setSearchValue} />
+        </div>
+
+        <div className="sm:basis-1/4 hidden sm:block" />
+      </div>
+
       <Divider className="my-6 dark:bg-slate-400" />
+
       <div className="flex flex-row sm:flex-nowrap gap-6 ">
         <div className="mt-20">
-          <Strong >Categorii</Strong>
+          <Strong>Categorii</Strong>
           <CategoryFilter
-  selectedCategories={selectedCategories}
-  setSelectedCategories={setSelectedCategories}
-  selectedSubcategories={selectedSubcategories}
-  setSelectedSubcategories={setSelectedSubcategories}
-/>
-
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            selectedSubcategories={selectedSubcategories}
+            setSelectedSubcategories={setSelectedSubcategories}
+          />
         </div>
-      <div className="bg-white dark:bg-zinc-900">
-        <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-6xl lg:px-8">
-          {/* <h2 className="">Products</h2> */}
+        <div className="bg-white dark:bg-zinc-900">
+          <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-6xl lg:px-8">
+            {/* <h2 className="">Products</h2> */}
 
-          <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8">
-            {products.map((product) => (
-              <ProductCard key={product._id} product={product} height={48} />
-            ))}
+            <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8">
+              {products.map((product) => (
+                <ProductCard key={product._id} product={product} height={48} />
+              ))}
+            </div>
           </div>
+          <Pages
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onChange={(page: SetStateAction<number>) => setCurrentPage(page)} // Actualizează pagina curentă
+          />
         </div>
-        <Pages
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onChange={(page: SetStateAction<number>) => setCurrentPage(page)} // Actualizează pagina curentă
-        />
       </div>
-      </div>
-   
     </>
   );
 }
