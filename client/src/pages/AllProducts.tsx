@@ -94,7 +94,8 @@ export default function AllProducts() {
             setSelectedSubcategories={setSelectedSubcategories}
           />
         </div>
-        <div className="bg-white dark:bg-zinc-900">
+        <div className="bg-white dark:bg-zinc-900 min-h-screen flex flex-col">
+          <main className="flex-grow">
           <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-6xl lg:px-8">
             {/* <h2 className="">Products</h2> */}
 
@@ -104,6 +105,8 @@ export default function AllProducts() {
               ))}
             </div>
           </div>
+          </main>
+          
           <Pages
             currentPage={currentPage}
             totalPages={totalPages}

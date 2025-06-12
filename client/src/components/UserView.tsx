@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { DescriptionDetails, DescriptionList, DescriptionTerm } from "./catalyst/description-list";
 import { Subheading } from "./catalyst/heading";
@@ -37,6 +37,8 @@ interface IUser {
   password?: string;
   isAdmin: boolean;
   productsId: IProduct[];
+  isBlocked: boolean;
+  blockedUntil?: Date;
 }
 
 export const UserView = () => {
@@ -70,22 +72,22 @@ export const UserView = () => {
     fetchProducts();
   }, [currentPage, id]);
 
+  const fetchUser = useCallback(async () => {
+    try {
+      const res = await axios.get(`/api/user/${id}`);
+
+      setUser(res.data.user);
+      console.log(res.data.user);
+    } catch (err) {
+      setError("Eroare la încărcarea utilizatorului.");
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(`/api/user/${id}`);
-
-        setUser(res.data.user);
-        console.log(res.data.user);
-      } catch (err) {
-        setError("Eroare la încărcarea utilizatorului.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUser();
-  }, [id, currentPage]);
+  }, [fetchUser]);
 
   const handleDeleteUser = async () => {
     try {
@@ -101,6 +103,35 @@ export const UserView = () => {
       setError(errorMessage);
     }
   };
+
+  const handleBlockUser = async () => {
+    try {
+      const res = await axios.put(`/api/admin/block-user/${id}`);
+      // console.log("User blocat:", res.data);
+      fetchUser();
+    } catch (error) {
+      const errorMessage =
+        axios.isAxiosError(error) && error.response
+          ? error.response.data.message || "A apărut o eroare la blocarea utilizatorului."
+          : "A apărut o eroare neprevăzută.";
+      setError(errorMessage);
+    }
+  };
+
+const handleUnblockUser = async () => {
+  try {
+    const res = await axios.put(`/api/admin/unblock/${id}`);
+    // console.log("User deblocat:", res.data);
+    fetchUser();
+  } catch (error) {
+    const errorMessage =
+      axios.isAxiosError(error) && error.response
+        ? error.response.data.message || "A apărut o eroare la deblocarea utilizatorului."
+        : "A apărut o eroare neprevăzută.";
+    setError(errorMessage);
+  }
+};
+
   if (loading) return <div>Se încarcă...</div>;
   if (error) return <div>{error}</div>;
   if (!user) return <div>Utilizatorul nu a fost găsit</div>;
@@ -117,6 +148,11 @@ export const UserView = () => {
         <div className="flex w-full flex-wrap items-end justify-between gap-4 border-b border-zinc-950/10 pb-6 dark:border-white/10">
           <Heading>User ID: {user._id}</Heading>
           <div className="flex gap-4">
+          {user.isBlocked ? (
+  <Button onClick={handleUnblockUser}>Deblochează</Button>
+) : (
+  <Button onClick={handleBlockUser}>Blochează</Button>
+)}
             {/* <Button outline>Refund</Button> */}
             <Button color="red" onClick={() => setDialogOpen(true)}>
               Șterge utilizator
@@ -177,41 +213,43 @@ export const UserView = () => {
           <DescriptionDetails>CA{order.amount.net}</DescriptionDetails> */}
           </DescriptionList>
         </div>
-        <div className="flex-1 ">
-          <Table className="mt-12 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
-            <TableHead>
-              <TableRow>
-                {/* <TableHeader>ID</TableHeader> */}
-                <TableHeader>Data</TableHeader>
-                <TableHeader>Denumire</TableHeader>
-                <TableHeader>Descriere</TableHeader>
-                <TableHeader>Categorie</TableHeader>
-                <TableHeader>Subcategorie</TableHeader>
-                {/* <TableHeader className="text-right">Amount</TableHeader> */}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {products.map((product) => {
-                const formattedDate = new Date(product.createdAt).toLocaleString("ro-RO", {
-                  dateStyle: "short",
-                  timeStyle: "short",
-                });
+        <div className="flex-1 min-h-screen flex flex-col">
+          <main className="flex-grow">
+            <Table className="mt-12 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
+              <TableHead>
+                <TableRow>
+                  {/* <TableHeader>ID</TableHeader> */}
+                  <TableHeader>Data</TableHeader>
+                  <TableHeader>Denumire</TableHeader>
+                  <TableHeader>Descriere</TableHeader>
+                  <TableHeader>Categorie</TableHeader>
+                  <TableHeader>Subcategorie</TableHeader>
+                  {/* <TableHeader className="text-right">Amount</TableHeader> */}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {products.map((product) => {
+                  const formattedDate = new Date(product.createdAt).toLocaleString("ro-RO", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  });
 
-                return (
-                  <TableRow key={product._id} href={`/product/${product._id}`}>
-                    <TableCell>{formattedDate}</TableCell>
-                    <TableCell className="text-zinc-500">{product.name}</TableCell>
-                    <TableCell>{truncateText(product.description, 33)}</TableCell>
-                    <TableCell>{product.category.name}</TableCell>
-                    <TableCell>{product.subcategory.name}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-          {loadingProducts && <div>Se încarcă produsele...</div>}
-          {loadingProducts && <div className="text-red-500">{error}</div>}
-          {products.length === 0 && <div>Nu există produse</div>}
+                  return (
+                    <TableRow key={product._id} href={`/product/${product._id}`}>
+                      <TableCell>{formattedDate}</TableCell>
+                      <TableCell className="text-zinc-500">{product.name}</TableCell>
+                      <TableCell>{truncateText(product.description, 33)}</TableCell>
+                      <TableCell>{product.category.name}</TableCell>
+                      <TableCell>{product.subcategory.name}</TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+            {loadingProducts && <div>Se încarcă produsele...</div>}
+            {loadingProducts && <div className="text-red-500">{error}</div>}
+            {products.length === 0 && <div>Nu există produse</div>}
+          </main>
           <Pages
             totalPages={totalPages}
             currentPage={currentPage}

@@ -12,8 +12,8 @@ export const reserveProduct: RequestHandler = async (req, res, next) => {
     }
 
     const product = await Product.findById(id)
-      .populate("owner","username")
-      .populate("reservedBy"," username")
+      .populate("owner", "username")
+      .populate("reservedBy", " username")
       .populate("category")
       .populate("subcategory");
     if (!product) {
@@ -81,7 +81,7 @@ export const cancelRezervation: RequestHandler = async (req, res, next) => {
     }
     const product = await Product.findById(id)
       .populate("owner", "username")
-      .populate("reservedBy","username")
+      .populate("reservedBy", "username")
       .populate("category")
       .populate("subcategory");
     if (!product) {
@@ -103,3 +103,33 @@ export const cancelRezervation: RequestHandler = async (req, res, next) => {
     return next(errorHandler(500, "A aparut o eroare neprevazuta la anularea rezervarii"));
   }
 };
+
+export const getDonations: RequestHandler = async (req, res, next) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return next(errorHandler(401, "Trebuie sa fii autentificat ca sa vezi donatiile"));
+    }
+    const donations = await Donation.find({ $or: [{ receiver: req.user.id }, { owner: req.user.id }] })
+      .populate("product")
+      .populate("owner", "username")
+      .populate("receiver", "username");
+    res.status(200).json(donations);
+  } catch (error) {
+    return next(errorHandler(500, "A aparut o eroare neprevazuta la obtinerea donatiilor"));
+  }
+};
+
+// export const getDonationsAsOwner: RequestHandler = async (req, res, next) => {
+//   try {
+//     if (!req.user || !req.user.id) {
+//       return next(errorHandler(401, "Trebuie sa fii autentificat ca sa vezi donatiile"));
+//     }
+//     const donations = await Donation.find({ owner: req.user.id })
+//       .populate("product")
+//       .populate("owner", "username")
+//       .populate("receiver", "username");
+//     res.status(200).json(donations);
+//   } catch (error) {
+//     return next(errorHandler(500, "A aparut o eroare neprevazuta la obtinerea donatiilor"));
+//   }
+// }

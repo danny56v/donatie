@@ -43,6 +43,7 @@ const navItems = [
   { label: "Acasă", url: "/" },
   { label: "Anunțurile mele", url: "/my-products" },
   { label: "Donații", url: "/donations" },
+  // { label: "Chat", url: "/chat" },
   // { label: "Broadcasts", url: "/broadcasts" },
   // { label: "Settings", url: "/settings" },
 ];
@@ -90,13 +91,13 @@ const Header: React.FC = () => {
         if (res.data.isAuthenticated) {
           dispatch(signInSuccess(res.data.user));
         }
-        dispatch(signInFailure(res.data.message));
+        // dispatch(signInFailure(res.data.message));
       } catch (error) {
         const errorMessage =
           axios.isAxiosError(error) && error.response
             ? error.response.data.message || "A apărut o eroare la autentificare."
             : "A apărut o eroare neprevăzută.";
-        dispatch(signInFailure(errorMessage));
+        // dispatch(signInFailure(errorMessage));
       } finally {
         setLoading(false);
       }
@@ -169,9 +170,9 @@ const Header: React.FC = () => {
             </NavbarItem> */}
             {isAuthenticated ? (
               <>
-                <NavbarItem href="/inbox" aria-label="Inbox">
+                {/* <NavbarItem href="/inbox" aria-label="Inbox">
                   <InboxIcon />
-                </NavbarItem>
+                </NavbarItem> */}
                 {location.pathname !== "/product/new" && (
                   <NavbarItem href="/product/new" aria-label="Create Post">
                     <PlusIcon />
@@ -182,14 +183,14 @@ const Header: React.FC = () => {
                     <UserCircleIcon />
                   </DropdownButton>
                   <DropdownMenu className="min-w-64" anchor="bottom end">
-                    <DropdownItem href="/my-profile">
+                    {/* <DropdownItem href="/my-profile">
                       <UserIcon />
                       <DropdownLabel>My profile</DropdownLabel>
                     </DropdownItem>
                     <DropdownItem href="/settings">
                       <Cog8ToothIcon />
                       <DropdownLabel>Settings</DropdownLabel>
-                    </DropdownItem>
+                    </DropdownItem> */}
                     {user?.isAdmin && (
                       <>
                         <DropdownItem href="/admin/users">
@@ -202,7 +203,7 @@ const Header: React.FC = () => {
                         </DropdownItem>
                       </>
                     )}
-                    <DropdownDivider />
+                    {/* <DropdownDivider />
                     <DropdownItem href="/privacy-policy">
                       <ShieldCheckIcon />
                       <DropdownLabel>Privacy policy</DropdownLabel>
@@ -211,7 +212,7 @@ const Header: React.FC = () => {
                       <LightBulbIcon />
                       <DropdownLabel>Share feedback</DropdownLabel>
                     </DropdownItem>
-                    <DropdownDivider />
+                    <DropdownDivider /> */}
                     <DropdownItem onClick={handleSignOut}>
                       <ArrowRightStartOnRectangleIcon />
                       <DropdownLabel>Sign out</DropdownLabel>

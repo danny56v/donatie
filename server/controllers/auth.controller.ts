@@ -107,6 +107,9 @@ export const signin: RequestHandler<{}, {}, SignInRequestBody> = async (req, res
     if (!validUser.password) {
       return next(errorHandler(404, "Email sau Parolă greșită"));
     }
+    if(validUser.isBlocked) {
+      return next(errorHandler(403, "Contul tău este blocat. Contactează administratorul."));
+    }
 
     const validPassword = await bcrypt.compare(password, validUser.password);
     if (!validPassword) return next(errorHandler(404, "Email sau Parolă greșită"));

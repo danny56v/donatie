@@ -10,18 +10,22 @@ export interface IUser {
   password?: string;
   isAdmin: boolean;
   productsId: mongoose.Types.ObjectId[];
+  isBlocked?: boolean;
+  blockedUntil?: Date | null;
 }
 
 const userSchema = new Schema<IUser>(
   {
     firstName: { type: String, required: true, unique: false },
-    lastName: {type: String, required: false, unique: false},
+    lastName: { type: String, required: false, unique: false },
     googleId: { type: String, required: false },
     username: { type: String, required: true, unique: true, index: true },
     email: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: false, unique: false },
     isAdmin: { type: Boolean, required: true, default: false },
     productsId: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+    isBlocked: { type: Boolean, required: false, default: false },
+    blockedUntil: { type: Date, default: null, required: false },
   },
   { timestamps: true }
 );

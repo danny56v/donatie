@@ -63,7 +63,8 @@ export default function Pages({ currentPage, totalPages, onChange }: PagesProps)
   };
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-6">
+    
+    <div className="mt-auto flex items-center justify-center gap-2">
       <button
         onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -86,5 +87,6 @@ export default function Pages({ currentPage, totalPages, onChange }: PagesProps)
         →
       </button>
     </div>
+
   );
 }

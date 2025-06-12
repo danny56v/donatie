@@ -11,10 +11,12 @@ interface IUser {
   firstName: string;
   lastName: string;
   createdAt: string;
+  isBlocked: boolean;
 }
 interface UserState {
   currentUser: IUser | null;
   isAuthenticated: boolean;
+  isBlocked: boolean;
   // token: string | null;
   loading: boolean;
   error: string | null;
@@ -22,6 +24,7 @@ interface UserState {
 
 const initialState: UserState = {
   currentUser: null,
+  isBlocked: false,
   // token: null,
   isAuthenticated: false,
   loading: false,

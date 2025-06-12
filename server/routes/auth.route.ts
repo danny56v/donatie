@@ -2,6 +2,7 @@ import express, { Router } from "express";
 import { signin, signout, signup, checkAuth, restrictAuthRoutes, googleAuth } from "../controllers/auth.controller";
 import { verifyToken } from "../middleware/verifyUser";
 import passport from "passport";
+import { isBlocked } from "../middleware/isBlocked";
 
 const router: Router = express.Router();
 
@@ -15,6 +16,6 @@ router.get(
 router.post("/signup", restrictAuthRoutes, signup);
 router.post("/signin", restrictAuthRoutes, signin);
 router.post("/signout", signout);
-router.get("/checkAuth", verifyToken, checkAuth);
+router.get("/checkAuth", verifyToken,isBlocked, checkAuth);
 
 export default router;

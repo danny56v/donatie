@@ -192,7 +192,7 @@ export default function ViewProduct() {
       <div className="mt-10">
         <div className="flex flex-row justify-between">
           <Heading className="mb-5">Produse Similare</Heading>
-          <TextLink href="#">Vezi mai multe</TextLink>
+          {/* <TextLink href="#">Vezi mai multe</TextLink> */}
         </div>
         {recommendedProducts.length > 0 ? (
           <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8">

@@ -9,6 +9,7 @@ import { Heading } from "../components/catalyst/heading";
 import { Text, TextLink } from "../components/catalyst/text";
 import { Input } from "../components/catalyst/input";
 import { Button } from "../components/catalyst/button";
+import { toast } from "react-toastify";
 
 export default function SignIn() {
   const dispatch = useDispatch();
@@ -49,12 +50,13 @@ export default function SignIn() {
       dispatch(signInSuccess(user));
 
       navigate("/");
-    } catch (error) {
-      const errorMessage =
-        axios.isAxiosError(error) && error.response
-          ? error.response.data.message || "A apărut o eroare la autentificare."
-          : "A apărut o eroare neprevăzută.";
-      dispatch(signInFailure(errorMessage));
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 403) {
+        await axios.post("/api/auth/signout");
+        dispatch(signInFailure(err.response.data.message));
+        // navigate("/signin");
+        // toast.error("Contul tău este blocat de către administrator.");
+      }
     }
   };
 

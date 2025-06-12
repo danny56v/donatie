@@ -15,6 +15,8 @@ import { AdminUsers } from "./components/AdminUsers";
 import { UserView } from "./components/UserView";
 import { AdminProducts } from "./components/AdminProducts";
 import OAuthSuccess from "./components/OAuthSuccess";
+import { Chat } from "./pages/Chat";
+import { Donations } from "./components/Donations";
 
 const App: React.FC = () => {
   return (
@@ -34,10 +36,13 @@ const App: React.FC = () => {
             <Route path="users" element={<AdminUsers />} />
             <Route path="user/:id" element={<UserView />} />
           </Route>
+          <Route path="chat" element={<Chat />} />
           <Route path="product/new" element={<CreateProduct />} />
           <Route path="my-profile" element={<Profile />} />
           <Route path="product/edit/:id" element={<EditProduct />} />
           <Route path="my-products" element={<MyProducts />} />
+          <Route path="donations" element={<Donations />} />
+          
         </Route>
       </Route>
     </Routes>

@@ -12,9 +12,15 @@ import helmet from "helmet";
 import passport from "passport";
 import session from "express-session";
 import "./passport/passport-setup";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { Message } from "./models/Message";
+import { Conversation } from "./models/Conversation";
 dotenv.config();
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server);
 
 app.use(helmet());
 app.use(json());
@@ -32,18 +38,48 @@ async function main() {
 
 main();
 
+
+io.on('connection', client => {
+  client.on('event', data => { /* … */ });
+  client.on('disconnect', () => { /* … */ });
+});
+
+
+io.on('connection', (socket) => {
+  console.log('Un utilizator s-a conectat.', socket.id);
+
+  socket.on('new_message', (data) => {
+    const newMessage = new Message(data);
+    newMessage.save().then((savedMessage) => {
+      Conversation.findOneAndUpdate(
+        { participants: { $all: [data.senderId, data.receiverId] } },
+        { $push: { messages: savedMessage._id } },
+        { new: true, upsert: true }
+      ).then(() => {
+        io.emit('message_received', data);
+      });
+    });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Un utilizator s-a deconectat.');
+  });
+});
+
+
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/admin", adminRouter);
 
-
-app.use(session({
-  secret: process.env.SESSION_SECRET!,
-  resave: false,
-  saveUninitialized: false,
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
